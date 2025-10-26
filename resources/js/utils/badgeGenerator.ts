@@ -114,11 +114,11 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
         pdf.rect(0, 0, width, height, 'F');
     }
 
-    // Add Event Logo if available
+    // Add Event Logo if available (preserve aspect ratio)
     if (template.show_logo && event.logo_url) {
         console.log('Loading event logo:', event.logo_url);
         try {
-            await addImageToPDF(pdf, event.logo_url, width / 2 - 50, 30, 100, 50);
+            await addImageToPDFWithAspectRatio(pdf, event.logo_url, width / 2 - 60, 20, 120, 80);
             console.log('Event logo loaded successfully');
         } catch (error) {
             console.error('Failed to load event logo:', error);
@@ -127,23 +127,37 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
 
     // Add Event Title
     pdf.setFont(template.font_family || 'helvetica', 'bold');
-    pdf.setFontSize(14);
+    pdf.setFontSize(16);
     pdf.setTextColor(...hexToRGB(template.secondary_color));
-    pdf.text(event.name, width / 2, 100, { align: 'center' });
+    pdf.text(event.name, width / 2, 110, { align: 'center' });
+
+    // Add Event Date and Location
+    pdf.setFont(template.font_family || 'helvetica', 'normal');
+    pdf.setFontSize(11);
+    pdf.setTextColor(...hexToRGB(template.secondary_color));
+    pdf.text(event.date, width / 2, 130, { align: 'center' });
+    pdf.text(event.location, width / 2, 145, { align: 'center' });
 
     // Add Attendee Name
     pdf.setFont(template.font_family || 'helvetica', 'bold');
     pdf.setFontSize(24);
     pdf.setTextColor(...hexToRGB(template.primary_color));
-    pdf.text(attendee.name, width / 2, height / 2 - 40, { align: 'center' });
+    pdf.text(attendee.name, width / 2, height / 2 - 20, { align: 'center' });
 
     // Add Company if available
     if (attendee.company) {
         pdf.setFont(template.font_family || 'helvetica', 'normal');
         pdf.setFontSize(16);
         pdf.setTextColor(...hexToRGB(template.secondary_color));
-        pdf.text(attendee.company, width / 2, height / 2, { align: 'center' });
+        pdf.text(attendee.company, width / 2, height / 2 + 10, { align: 'center' });
     }
+
+    // Add Attendee Type/Category
+    pdf.setFont(template.font_family || 'helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(...hexToRGB(template.primary_color));
+    const typeLabel = attendee.type.charAt(0).toUpperCase() + attendee.type.slice(1);
+    pdf.text(typeLabel, width / 2, height / 2 + 35, { align: 'center' });
 
     // Add QR Code with primary color (if enabled)
     if (template.show_qr_code) {
@@ -255,6 +269,64 @@ async function addImageToPDF(pdf: any, imageUrl: string, x: number, y: number, w
                 // Detect image format from URL
                 const format = imageUrl.toLowerCase().endsWith('.png') ? 'PNG' : 'JPEG';
                 pdf.addImage(img, format, x, y, width, height);
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        };
+
+        img.onerror = (error) => {
+            clearTimeout(timeout);
+            reject(error);
+        };
+
+        // Add timestamp to prevent caching issues
+        const separator = imageUrl.includes('?') ? '&' : '?';
+        img.src = imageUrl + separator + 't=' + Date.now();
+    });
+}
+
+/**
+ * Helper function to add image to PDF with aspect ratio preservation
+ */
+async function addImageToPDFWithAspectRatio(pdf: any, imageUrl: string, x: number, y: number, maxWidth: number, maxHeight: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+
+        // Set timeout for image loading
+        const timeout = setTimeout(() => {
+            reject(new Error('Image load timeout'));
+        }, 10000); // 10 second timeout
+
+        img.crossOrigin = 'anonymous';
+
+        img.onload = () => {
+            clearTimeout(timeout);
+            try {
+                // Calculate dimensions preserving aspect ratio
+                const imgAspectRatio = img.width / img.height;
+                const maxAspectRatio = maxWidth / maxHeight;
+
+                let renderWidth = maxWidth;
+                let renderHeight = maxHeight;
+
+                if (imgAspectRatio > maxAspectRatio) {
+                    // Image is wider than container
+                    renderHeight = maxWidth / imgAspectRatio;
+                } else {
+                    // Image is taller than container
+                    renderWidth = maxHeight * imgAspectRatio;
+                }
+
+                // Center the image in the allocated space
+                const offsetX = x + (maxWidth - renderWidth) / 2;
+                const offsetY = y + (maxHeight - renderHeight) / 2;
+
+                // Detect image format from URL
+                const format = imageUrl.toLowerCase().endsWith('.png') ? 'PNG' : 'JPEG';
+                pdf.addImage(img, format, offsetX, offsetY, renderWidth, renderHeight);
+
+                console.log(`Image loaded: ${img.width}x${img.height}, rendered as: ${renderWidth.toFixed(2)}x${renderHeight.toFixed(2)}`);
                 resolve();
             } catch (error) {
                 reject(error);
