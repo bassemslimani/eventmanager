@@ -48,25 +48,40 @@ function svgToDataURL(svgString: string): string {
  * Generate print-ready PDF badge
  */
 export async function generatePDFBadge(data: BadgeData): Promise<void> {
-    const { jsPDF } = await import('jspdf');
+    try {
+        console.log('Importing jsPDF...');
+        const { jsPDF } = await import('jspdf');
 
-    const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: [data.template.badge_width, data.template.badge_height],
-    });
+        console.log('Creating PDF document...');
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [data.template.badge_width, data.template.badge_height],
+        });
 
-    // Generate Front Page
-    await generateBadgeFront(pdf, data);
+        // Generate Front Page
+        console.log('Generating front page...');
+        await generateBadgeFront(pdf, data);
+        console.log('Front page generated successfully');
 
-    // Add new page for back
-    pdf.addPage([data.template.badge_width, data.template.badge_height]);
+        // Add new page for back
+        console.log('Adding back page...');
+        pdf.addPage([data.template.badge_width, data.template.badge_height]);
 
-    // Generate Back Page
-    await generateBadgeBack(pdf, data);
+        // Generate Back Page
+        console.log('Generating back page...');
+        await generateBadgeBack(pdf, data);
+        console.log('Back page generated successfully');
 
-    // Download the PDF
-    pdf.save(`badge-${data.attendee.name.replace(/\s+/g, '-')}.pdf`);
+        // Download the PDF
+        const filename = `badge-${data.attendee.name.replace(/\s+/g, '-')}.pdf`;
+        console.log('Saving PDF as:', filename);
+        pdf.save(filename);
+        console.log('PDF saved successfully');
+    } catch (error) {
+        console.error('Error in generatePDFBadge:', error);
+        throw error;
+    }
 }
 
 /**
@@ -77,17 +92,23 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
     const width = template.badge_width;
     const height = template.badge_height;
 
+    console.log('Front page dimensions:', width, 'x', height);
+
     // Draw background template if available
     if (template.front_template_url) {
+        console.log('Loading front template:', template.front_template_url);
         try {
             await addImageToPDF(pdf, template.front_template_url, 0, 0, width, height);
+            console.log('Front template loaded successfully');
         } catch (error) {
             console.error('Failed to load front template:', error);
             // Draw white background as fallback
             pdf.setFillColor(255, 255, 255);
             pdf.rect(0, 0, width, height, 'F');
+            console.log('Using white background as fallback');
         }
     } else {
+        console.log('No front template, using white background');
         // White background
         pdf.setFillColor(255, 255, 255);
         pdf.rect(0, 0, width, height, 'F');
@@ -95,8 +116,10 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
 
     // Add Event Logo if available
     if (template.show_logo && event.logo_url) {
+        console.log('Loading event logo:', event.logo_url);
         try {
             await addImageToPDF(pdf, event.logo_url, width / 2 - 50, 30, 100, 50);
+            console.log('Event logo loaded successfully');
         } catch (error) {
             console.error('Failed to load event logo:', error);
         }
@@ -105,33 +128,36 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
     // Add Event Title
     pdf.setFont(template.font_family || 'helvetica', 'bold');
     pdf.setFontSize(14);
-    pdf.setTextColor(hexToRGB(template.secondary_color));
+    pdf.setTextColor(...hexToRGB(template.secondary_color));
     pdf.text(event.name, width / 2, 100, { align: 'center' });
 
     // Add Attendee Name
     pdf.setFont(template.font_family || 'helvetica', 'bold');
     pdf.setFontSize(24);
-    pdf.setTextColor(hexToRGB(template.primary_color));
+    pdf.setTextColor(...hexToRGB(template.primary_color));
     pdf.text(attendee.name, width / 2, height / 2 - 40, { align: 'center' });
 
     // Add Company if available
     if (attendee.company) {
         pdf.setFont(template.font_family || 'helvetica', 'normal');
         pdf.setFontSize(16);
-        pdf.setTextColor(hexToRGB(template.secondary_color));
+        pdf.setTextColor(...hexToRGB(template.secondary_color));
         pdf.text(attendee.company, width / 2, height / 2, { align: 'center' });
     }
 
     // Add QR Code with primary color (if enabled)
     if (template.show_qr_code) {
+        console.log('Adding QR code to front page');
         const qrSize = 120;
         const qrX = width / 2 - qrSize / 2;
         const qrY = height - qrSize - 80;
 
         // Convert SVG QR code to image and add to PDF
         const qrDataUrl = svgToDataURL(data.qr_code_svg);
+        console.log('QR code data URL length:', qrDataUrl.length);
         try {
             pdf.addImage(qrDataUrl, 'SVG', qrX, qrY, qrSize, qrSize);
+            console.log('QR code added successfully');
         } catch (error) {
             console.error('Failed to add QR code:', error);
         }
@@ -139,13 +165,14 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
         // Add QR UUID text below QR code for manual entry
         pdf.setFont(template.font_family || 'helvetica', 'normal');
         pdf.setFontSize(10);
-        pdf.setTextColor(hexToRGB(template.primary_color));
+        pdf.setTextColor(...hexToRGB(template.primary_color));
         pdf.text(attendee.qr_uuid, width / 2, qrY + qrSize + 15, { align: 'center' });
 
         // Add helper text
         pdf.setFontSize(8);
         pdf.setTextColor(100, 100, 100);
         pdf.text('Scan QR or enter code manually', width / 2, qrY + qrSize + 28, { align: 'center' });
+        console.log('QR code UUID and helper text added');
     }
 }
 
@@ -157,17 +184,23 @@ async function generateBadgeBack(pdf: any, data: BadgeData): Promise<void> {
     const width = template.badge_width;
     const height = template.badge_height;
 
+    console.log('Back page dimensions:', width, 'x', height);
+
     // Draw background template if available
     if (template.back_template_url) {
+        console.log('Loading back template:', template.back_template_url);
         try {
             await addImageToPDF(pdf, template.back_template_url, 0, 0, width, height);
+            console.log('Back template loaded successfully');
         } catch (error) {
             console.error('Failed to load back template:', error);
             // Draw white background as fallback
             pdf.setFillColor(255, 255, 255);
             pdf.rect(0, 0, width, height, 'F');
+            console.log('Using white background as fallback');
         }
     } else {
+        console.log('No back template, using white background');
         // White background
         pdf.setFillColor(255, 255, 255);
         pdf.rect(0, 0, width, height, 'F');
@@ -176,12 +209,12 @@ async function generateBadgeBack(pdf: any, data: BadgeData): Promise<void> {
     // Add Event Info
     pdf.setFont(template.font_family || 'helvetica', 'bold');
     pdf.setFontSize(16);
-    pdf.setTextColor(hexToRGB(template.primary_color));
+    pdf.setTextColor(...hexToRGB(template.primary_color));
     pdf.text(event.name, width / 2, 50, { align: 'center' });
 
     pdf.setFont(template.font_family || 'helvetica', 'normal');
     pdf.setFontSize(12);
-    pdf.setTextColor(hexToRGB(template.secondary_color));
+    pdf.setTextColor(...hexToRGB(template.secondary_color));
     pdf.text(event.location, width / 2, 75, { align: 'center' });
     pdf.text(event.date, width / 2, 95, { align: 'center' });
 
@@ -208,17 +241,34 @@ async function generateBadgeBack(pdf: any, data: BadgeData): Promise<void> {
 async function addImageToPDF(pdf: any, imageUrl: string, x: number, y: number, width: number, height: number): Promise<void> {
     return new Promise((resolve, reject) => {
         const img = new Image();
+
+        // Set timeout for image loading
+        const timeout = setTimeout(() => {
+            reject(new Error('Image load timeout'));
+        }, 10000); // 10 second timeout
+
         img.crossOrigin = 'anonymous';
+
         img.onload = () => {
+            clearTimeout(timeout);
             try {
-                pdf.addImage(img, 'PNG', x, y, width, height);
+                // Detect image format from URL
+                const format = imageUrl.toLowerCase().endsWith('.png') ? 'PNG' : 'JPEG';
+                pdf.addImage(img, format, x, y, width, height);
                 resolve();
             } catch (error) {
                 reject(error);
             }
         };
-        img.onerror = reject;
-        img.src = imageUrl;
+
+        img.onerror = (error) => {
+            clearTimeout(timeout);
+            reject(error);
+        };
+
+        // Add timestamp to prevent caching issues
+        const separator = imageUrl.includes('?') ? '&' : '?';
+        img.src = imageUrl + separator + 't=' + Date.now();
     });
 }
 

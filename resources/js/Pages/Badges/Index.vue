@@ -89,8 +89,17 @@ const generateBulk = () => {
 
 const downloadBadge = async (id: number) => {
     try {
+        console.log('Starting badge download for ID:', id);
+
         const response = await fetch(`/badges/download/${id}`);
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
+        console.log('Badge data received:', data);
 
         if (!data.success) {
             alert(data.error || 'Failed to download badge.');
@@ -98,12 +107,23 @@ const downloadBadge = async (id: number) => {
         }
 
         // Use professional PDF badge generator
+        console.log('Loading PDF generator...');
         const { generatePDFBadge } = await import('@/utils/badgeGenerator');
+
+        console.log('Generating PDF...');
         await generatePDFBadge(data);
+
+        console.log('Badge PDF generated successfully');
 
     } catch (error) {
         console.error('Error downloading badge:', error);
-        alert('Failed to download badge. Please try again.');
+
+        // More detailed error message
+        if (error instanceof Error) {
+            alert(`Failed to download badge: ${error.message}\n\nPlease check console for details.`);
+        } else {
+            alert('Failed to download badge. Please try again.');
+        }
     }
 };
 </script>
