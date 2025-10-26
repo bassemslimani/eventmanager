@@ -1,0 +1,988 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   2025 MODERN DESIGN UTILITIES - QRMH
+   ============================================ */
+
+@layer base {
+  :root {
+    /* Primary Gradient Colors */
+    --gradient-from: #10b981;
+    --gradient-to: #14b8a6;
+
+    /* Accent Colors */
+    --accent-blue: #3b82f6;
+    --accent-purple: #8b5cf6;
+
+    /* Semantic Colors */
+    --success: #10F295;
+    --warning: #FFB547;
+    --error: #FF5E5B;
+
+    /* Dark Mode */
+    --dark-bg: #0A0A0B;
+    --glass-white: rgba(255, 255, 255, 0.1);
+    --glass-black: rgba(10, 10, 11, 0.7);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+@layer components {
+  /* ============================================
+     GLASSMORPHISM EFFECTS
+     ============================================ */
+
+  .glass-card {
+    @apply backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)];
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .dark-mode .glass-card {
+    background: rgba(10, 10, 11, 0.7);
+    @apply border-white/10;
+  }
+
+  .glass-panel {
+    @apply backdrop-blur-2xl bg-white/5 border border-white/10;
+  }
+
+  .glass-button {
+    @apply backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ============================================
+     GRADIENT EFFECTS
+     ============================================ */
+
+  .gradient-primary {
+    background: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
+  }
+
+  .gradient-mesh {
+    background:
+      radial-gradient(at 40% 20%, hsla(168, 86%, 36%, 1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsla(174, 65%, 39%, 1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(168, 86%, 36%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsla(174, 65%, 39%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(168, 86%, 36%, 0.5) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsla(174, 65%, 39%, 0.5) 0px, transparent 50%);
+  }
+
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(#fff, #fff) padding-box,
+                linear-gradient(135deg, #10b981 0%, #8b5cf6 100%) border-box;
+    border: 2px solid transparent;
+    border-radius: 1rem;
+  }
+
+  .dark-mode .gradient-border {
+    background: linear-gradient(#0A0A0B, #0A0A0B) padding-box,
+                linear-gradient(135deg, #10b981 0%, #8b5cf6 100%) border-box;
+  }
+
+  .animated-gradient {
+    background: linear-gradient(-45deg, #10b981, #14b8a6, #3b82f6, #8b5cf6);
+    background-size: 400% 400%;
+    animation: gradient-flow 15s ease infinite;
+  }
+
+  @keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ============================================
+     NEUMORPHISM
+     ============================================ */
+
+  .neo-card {
+    @apply bg-gray-50 dark:bg-gray-900 rounded-2xl;
+    box-shadow: 20px 20px 60px #d1d1d1, -20px -20px 60px #ffffff;
+  }
+
+  .dark-mode .neo-card {
+    box-shadow: 20px 20px 60px #050506, -20px -20px 60px #0f0f10;
+  }
+
+  .neo-inset {
+    box-shadow: inset 20px 20px 60px #d1d1d1, inset -20px -20px 60px #ffffff;
+  }
+
+  /* ============================================
+     MODERN BUTTONS
+     ============================================ */
+
+  .magnetic-btn {
+    @apply relative overflow-hidden cursor-pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .magnetic-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  .magnetic-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .gradient-btn {
+    @apply relative overflow-hidden text-white font-semibold px-6 py-3 rounded-xl;
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    transition: all 0.3s ease;
+  }
+
+  .gradient-btn:hover {
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .gradient-btn::before {
+    content: '';
+    @apply absolute inset-0 opacity-0;
+    background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+    transition: opacity 0.3s ease;
+  }
+
+  .gradient-btn:hover::before {
+    opacity: 1;
+  }
+
+  /* ============================================
+     BENTO GRID LAYOUT
+     ============================================ */
+
+  .bento-grid {
+    @apply grid gap-4 md:gap-6;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-auto-rows: minmax(200px, auto);
+  }
+
+  .bento-item {
+    @apply rounded-2xl p-6 backdrop-blur-xl;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .bento-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .bento-item-large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .bento-item-tall {
+    grid-row: span 2;
+  }
+
+  .bento-item-wide {
+    grid-column: span 2;
+  }
+
+  /* ============================================
+     FLOATING & ANIMATED ELEMENTS
+     ============================================ */
+
+  .floating {
+    animation: floating 3s ease-in-out infinite;
+  }
+
+  @keyframes floating {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    }
+    50% {
+      opacity: 0.7;
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.8);
+    }
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      left: 100%;
+    }
+  }
+
+  /* ============================================
+     MODERN CARDS
+     ============================================ */
+
+  .modern-card {
+    @apply rounded-2xl backdrop-blur-xl border border-white/10 p-6;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modern-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .dark-mode .modern-card {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+  }
+
+  /* ============================================
+     BADGE STYLES FOR EVENT BADGES
+     ============================================ */
+
+  .badge-exhibitor {
+    @apply relative overflow-hidden rounded-2xl;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  .badge-guest {
+    @apply relative overflow-hidden rounded-2xl;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+
+  .badge-organizer {
+    @apply relative overflow-hidden rounded-2xl;
+    background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+  }
+
+  .badge-overlay {
+    @apply absolute inset-0 backdrop-blur-sm;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* ============================================
+     LOADING & SKELETON STATES
+     ============================================ */
+
+  .skeleton {
+    @apply bg-gray-200 dark:bg-gray-800 rounded animate-pulse;
+  }
+
+  .skeleton-shimmer {
+    @apply relative overflow-hidden bg-gray-200 dark:bg-gray-800 rounded;
+  }
+
+  .skeleton-shimmer::before {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* ============================================
+     SCROLL EFFECTS
+     ============================================ */
+
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-900 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-emerald-500 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-emerald-600;
+  }
+
+  /* ============================================
+     UTILITY CLASSES
+     ============================================ */
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+
+  .shadow-glow-lg {
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+  }
+
+  .backdrop-blur-safari {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+
+@layer utilities {
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-bounce {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+}
+
+/* ============================================
+   MOBILE-FIRST & PWA OPTIMIZATIONS
+   ============================================ */
+
+@layer utilities {
+  /* Mobile Safe Areas */
+  .safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  .safe-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Touch-friendly buttons */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mobile Card Optimizations */
+  @media (max-width: 768px) {
+    .glass-card {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .bento-item,
+    .bento-item-wide,
+    .bento-item-tall {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+
+    /* Mobile Typography */
+    h1 {
+      @apply text-2xl;
+    }
+
+    h2 {
+      @apply text-xl;
+    }
+
+    h3 {
+      @apply text-lg;
+    }
+
+    /* Mobile Padding */
+    .gradient-mesh {
+      @apply p-4;
+    }
+
+    .max-w-7xl {
+      @apply px-4;
+    }
+
+    /* Mobile Cards */
+    .modern-card {
+      @apply rounded-2xl shadow-lg;
+    }
+  }
+
+  /* PWA Install Button */
+  .pwa-install-btn {
+    @apply fixed bottom-24 right-4 z-50 shadow-2xl;
+    @apply rounded-full p-4 bg-gradient-to-r from-emerald-500 to-teal-500;
+    @apply text-white font-semibold;
+    @apply transform transition-all duration-300;
+    @apply hover:scale-110 active:scale-95;
+  }
+
+  /* Mobile Navigation Hide Desktop Nav */
+  @media (max-width: 768px) {
+    nav .hidden.sm\:flex {
+      display: none !important;
+    }
+  }
+
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom Scrollbar for Mobile */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.3);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.5);
+  }
+
+  /* Pull to Refresh Indicator */
+  .ptr-indicator {
+    @apply flex items-center justify-center py-4;
+    @apply text-emerald-500 font-semibold;
+  }
+
+  /* Loading Skeleton for Mobile */
+  .skeleton-mobile {
+    @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg;
+    min-height: 60px;
+  }
+
+  /* Mobile Toast Notifications */
+  .mobile-toast {
+    @apply fixed bottom-24 left-4 right-4 z-[9999];
+    @apply glass-card p-4 rounded-2xl shadow-2xl;
+    @apply transform transition-all duration-300;
+  }
+
+  /* Swipe Gestures Indicator */
+  .swipe-indicator {
+    @apply absolute top-2 left-1/2 transform -translate-x-1/2;
+    @apply w-12 h-1 bg-gray-300 rounded-full;
+  }
+}
+
+/* ============================================
+   MOBILE APP ANIMATIONS
+   ============================================ */
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* ============================================
+   HAPTIC FEEDBACK SIMULATION
+   ============================================ */
+
+.haptic-light:active {
+  animation: haptic-pulse 0.1s ease-out;
+}
+
+@keyframes haptic-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   DARK MODE ENHANCEMENTS
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .glass-card {
+    background: rgba(17, 24, 39, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-bottom-nav {
+    background: rgba(17, 24, 39, 0.95);
+    border-top-color: rgba(16, 185, 129, 0.2);
+  }
+}
+
+/* ============================================
+   OFFLINE MODE INDICATOR
+   ============================================ */
+
+.offline-indicator {
+  @apply fixed top-0 left-0 right-0 z-[10000];
+  @apply bg-yellow-500 text-white text-center py-2 text-sm font-semibold;
+  @apply transform transition-transform duration-300;
+}
+
+.offline-indicator.hidden {
+  transform: translateY(-100%);
+}
+
+/* ============================================
+   BUTTON FIXES - Better Hover States
+   ============================================ */
+
+/* Fix PrimeVue default button hover */
+.p-button {
+  transition: all 0.2s ease !important;
+}
+
+.p-button:not(.p-button-text):not(.p-button-outlined):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Gradient Button - Fixed Hover */
+.gradient-btn {
+  background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 0.75rem !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+.gradient-btn:active {
+  transform: translateY(0) scale(0.98) !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+}
+
+.gradient-btn .p-button-label {
+  color: white !important;
+}
+
+/* Fix PrimeVue Success Buttons */
+.p-button-success {
+  background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.p-button-success:hover {
+  background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
+  color: white !important;
+}
+
+.p-button-success .p-button-label {
+  color: white !important;
+}
+
+/* Fix PrimeVue Info Buttons */
+.p-button-info {
+  background: #3B82F6 !important;
+  border: none !important;
+  color: white !important;
+}
+
+.p-button-info:hover {
+  background: #2563EB !important;
+  color: white !important;
+}
+
+.p-button-info .p-button-label {
+  color: white !important;
+}
+
+/* Fix PrimeVue Warning Buttons */
+.p-button-warning {
+  background: #F59E0B !important;
+  border: none !important;
+  color: white !important;
+}
+
+.p-button-warning:hover {
+  background: #D97706 !important;
+  color: white !important;
+}
+
+.p-button-warning .p-button-label {
+  color: white !important;
+}
+
+/* Fix PrimeVue Danger Buttons */
+.p-button-danger {
+  background: #EF4444 !important;
+  border: none !important;
+  color: white !important;
+}
+
+.p-button-danger:hover {
+  background: #DC2626 !important;
+  color: white !important;
+}
+
+.p-button-danger .p-button-label {
+  color: white !important;
+}
+
+/* Fix PrimeVue Secondary Buttons */
+.p-button-secondary {
+  background: #6B7280 !important;
+  border: none !important;
+  color: white !important;
+}
+
+.p-button-secondary:hover {
+  background: #4B5563 !important;
+  color: white !important;
+}
+
+.p-button-secondary .p-button-label {
+  color: white !important;
+}
+
+/* Action Buttons with Gradients */
+.action-btn-emerald {
+  background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.action-btn-emerald:hover {
+  background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
+  color: white !important;
+}
+
+.action-btn-blue {
+  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.action-btn-blue:hover {
+  background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%) !important;
+  color: white !important;
+}
+
+.action-btn-purple {
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.action-btn-purple:hover {
+  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%) !important;
+  color: white !important;
+}
+
+/* Ensure all button labels stay white */
+.p-button .p-button-label,
+.gradient-btn .p-button-label,
+button.gradient-btn span,
+button[class*="bg-gradient"] span {
+  color: white !important;
+}
+
+/* Ensure button icons stay white */
+.p-button .p-button-icon,
+.gradient-btn .p-button-icon,
+button.gradient-btn i,
+button[class*="bg-gradient"] i {
+  color: white !important;
+}
+
+/* Fix disabled state */
+.p-button:disabled,
+.gradient-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.p-button:disabled:hover,
+.gradient-btn:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* FileUpload button fix */
+.p-fileupload-choose {
+  background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.p-fileupload-choose:hover {
+  background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
+  color: white !important;
+}
+
+.p-fileupload-choose .p-button-label {
+  color: white !important;
+}
+
+/* ============================================
+   FORCE WHITE TEXT CLASS - MAXIMUM SPECIFICITY
+   ============================================ */
+
+/* Force white text on all states */
+.force-white-text,
+.force-white-text *,
+button.force-white-text,
+button.force-white-text *,
+.p-button.force-white-text,
+.p-button.force-white-text *,
+.force-white-text.p-button,
+.force-white-text.p-button * {
+  color: white !important;
+}
+
+/* Force white text on hover */
+.force-white-text:hover,
+.force-white-text:hover *,
+button.force-white-text:hover,
+button.force-white-text:hover *,
+.p-button.force-white-text:hover,
+.p-button.force-white-text:hover *,
+.force-white-text.p-button:hover,
+.force-white-text.p-button:hover * {
+  color: white !important;
+}
+
+/* Force white text on active */
+.force-white-text:active,
+.force-white-text:active *,
+button.force-white-text:active,
+button.force-white-text:active *,
+.p-button.force-white-text:active,
+.p-button.force-white-text:active *,
+.force-white-text.p-button:active,
+.force-white-text.p-button:active * {
+  color: white !important;
+}
+
+/* Force white text on focus */
+.force-white-text:focus,
+.force-white-text:focus *,
+button.force-white-text:focus,
+button.force-white-text:focus *,
+.p-button.force-white-text:focus,
+.p-button.force-white-text:focus *,
+.force-white-text.p-button:focus,
+.force-white-text.p-button:focus * {
+  color: white !important;
+}
+
+/* ============================================
+   ULTRA-SPECIFIC BUTTON TEXT FIX
+   Target every possible button element and state
+   ============================================ */
+
+/* All button text elements must be white */
+.p-button,
+.p-button span,
+.p-button i,
+.gradient-btn,
+.gradient-btn span,
+.gradient-btn i,
+button,
+button span,
+button i {
+  color: white !important;
+}
+
+/* On hover - text stays white */
+.p-button:hover,
+.p-button:hover span,
+.p-button:hover i,
+.p-button:hover .p-button-label,
+.p-button:hover .p-button-icon,
+.gradient-btn:hover,
+.gradient-btn:hover span,
+.gradient-btn:hover i,
+button:hover,
+button:hover span,
+button:hover i,
+button[class*="gradient"]:hover *,
+button[class*="bg-gradient"]:hover * {
+  color: white !important;
+}
+
+/* On active - text stays white */
+.p-button:active,
+.p-button:active span,
+.p-button:active i,
+.gradient-btn:active,
+.gradient-btn:active span,
+.gradient-btn:active i,
+button:active,
+button:active span,
+button:active i {
+  color: white !important;
+}
+
+/* On focus - text stays white */
+.p-button:focus,
+.p-button:focus span,
+.p-button:focus i,
+.gradient-btn:focus,
+.gradient-btn:focus span,
+.gradient-btn:focus i,
+button:focus,
+button:focus span,
+button:focus i {
+  color: white !important;
+}
+
+/* Specific PrimeVue button parts */
+.p-button-label,
+.p-button-icon,
+.p-button:hover .p-button-label,
+.p-button:hover .p-button-icon,
+.p-button:active .p-button-label,
+.p-button:active .p-button-icon,
+.p-button:focus .p-button-label,
+.p-button:focus .p-button-icon {
+  color: white !important;
+}
+
+/* Override any PrimeVue theme colors */
+.p-button:not(.p-button-text):not(.p-button-outlined) {
+  color: white !important;
+}
+
+.p-button:not(.p-button-text):not(.p-button-outlined):hover {
+  color: white !important;
+}
+
+.p-button:not(.p-button-text):not(.p-button-outlined):active {
+  color: white !important;
+}

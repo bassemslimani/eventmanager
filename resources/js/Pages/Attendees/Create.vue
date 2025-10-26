@@ -1,0 +1,218 @@
+<script setup lang="ts">
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import InputText from 'primevue/inputtext';
+import Dropdown from 'primevue/dropdown';
+import Button from 'primevue/button';
+
+interface Event {
+    id: number;
+    name: string;
+}
+
+interface Props {
+    events: Event[];
+}
+
+const props = defineProps<Props>();
+
+const form = useForm({
+    event_id: null,
+    type: 'exhibitor',
+    name: '',
+    name_ar: '',
+    email: '',
+    mobile: '',
+    company: '',
+    company_ar: '',
+    category: null,
+    role: '',
+    department: '',
+});
+
+const typeOptions = [
+    { label: 'Exhibitor', value: 'exhibitor' },
+    { label: 'Guest', value: 'guest' },
+    { label: 'Organizer', value: 'organizer' },
+    { label: 'VIP', value: 'vip' },
+];
+
+const categoryOptions = [
+    { label: 'Freelancer', value: 'freelancer' },
+    { label: 'Company', value: 'company' },
+];
+
+const submit = () => {
+    form.post('/attendees');
+};
+</script>
+
+<template>
+    <Head title="Create Attendee" />
+
+    <AuthenticatedLayout>
+        <div class="min-h-screen gradient-mesh p-6">
+            <div class="max-w-3xl mx-auto">
+                <!-- Header -->
+                <div class="mb-6">
+                    <h1 class="text-3xl font-bold text-gradient mb-2">Create New Attendee</h1>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Add a new attendee to the system
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form @submit.prevent="submit" class="glass-card p-6 space-y-6">
+                    <!-- Type -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Type *</label>
+                        <Dropdown
+                            v-model="form.type"
+                            :options="typeOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select type"
+                            class="w-full"
+                            :class="{ 'p-invalid': form.errors.type }"
+                        />
+                        <small v-if="form.errors.type" class="text-red-500">{{ form.errors.type }}</small>
+                    </div>
+
+                    <!-- Event -->
+                    <div v-if="events.length > 0">
+                        <label class="block text-sm font-medium mb-2">Event (Optional)</label>
+                        <Dropdown
+                            v-model="form.event_id"
+                            :options="events"
+                            optionLabel="name"
+                            optionValue="id"
+                            placeholder="Select event"
+                            class="w-full"
+                        />
+                    </div>
+
+                    <!-- Name -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Name (English) *</label>
+                            <InputText
+                                v-model="form.name"
+                                placeholder="John Doe"
+                                class="w-full"
+                                :class="{ 'p-invalid': form.errors.name }"
+                            />
+                            <small v-if="form.errors.name" class="text-red-500">{{ form.errors.name }}</small>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Name (Arabic)</label>
+                            <InputText
+                                v-model="form.name_ar"
+                                placeholder="جون دو"
+                                class="w-full"
+                                dir="rtl"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Email & Mobile -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Email *</label>
+                            <InputText
+                                v-model="form.email"
+                                type="email"
+                                placeholder="john@example.com"
+                                class="w-full"
+                                :class="{ 'p-invalid': form.errors.email }"
+                            />
+                            <small v-if="form.errors.email" class="text-red-500">{{ form.errors.email }}</small>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Mobile</label>
+                            <InputText
+                                v-model="form.mobile"
+                                placeholder="+966 50 123 4567"
+                                class="w-full"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Company (for Exhibitors and Guests) -->
+                    <div v-if="form.type !== 'organizer'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Company (English)</label>
+                            <InputText
+                                v-model="form.company"
+                                placeholder="Company Name"
+                                class="w-full"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Company (Arabic)</label>
+                            <InputText
+                                v-model="form.company_ar"
+                                placeholder="اسم الشركة"
+                                class="w-full"
+                                dir="rtl"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Category (for Exhibitors) -->
+                    <div v-if="form.type === 'exhibitor'">
+                        <label class="block text-sm font-medium mb-2">Category</label>
+                        <Dropdown
+                            v-model="form.category"
+                            :options="categoryOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select category"
+                            class="w-full"
+                        />
+                    </div>
+
+                    <!-- Role & Department (for Organizers) -->
+                    <div v-if="form.type === 'organizer'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Role</label>
+                            <InputText
+                                v-model="form.role"
+                                placeholder="Event Manager"
+                                class="w-full"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Department</label>
+                            <InputText
+                                v-model="form.department"
+                                placeholder="Operations"
+                                class="w-full"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3 justify-end">
+                        <Button
+                            label="Cancel"
+                            severity="secondary"
+                            @click="$inertia.visit('/attendees')"
+                            type="button"
+                        />
+                        <Button
+                            label="Create Attendee"
+                            icon="pi pi-check"
+                            class="gradient-btn"
+                            type="submit"
+                            :loading="form.processing"
+                        />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </AuthenticatedLayout>
+</template>
