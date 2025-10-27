@@ -71,8 +71,13 @@ class AttendeeController extends Controller
 
         $attendee = Attendee::create($validated);
 
+        // Send welcome email if attendee has email and event
+        if ($attendee->email && $attendee->event_id) {
+            \App\Jobs\SendWelcomeEmail::dispatch($attendee->load('event'));
+        }
+
         return redirect()->route('attendees.index')
-            ->with('success', 'Attendee created successfully.');
+            ->with('success', 'Attendee created successfully. Welcome email will be sent shortly.');
     }
 
     public function show(Attendee $attendee): Response
@@ -120,5 +125,25 @@ class AttendeeController extends Controller
 
         return redirect()->route('attendees.index')
             ->with('success', 'Attendee deleted successfully.');
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $attendees = Attendee::where(function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('email', 'like', "%{$query}%")
+              ->orWhere('mobile', 'like', "%{$query}%")
+              ->orWhere('company', 'like', "%{$query}%");
+        })
+        ->limit(10)
+        ->get(['id', 'name', 'email', 'mobile', 'company', 'type', 'checked_in_at']);
+
+        return response()->json($attendees);
     }
 }

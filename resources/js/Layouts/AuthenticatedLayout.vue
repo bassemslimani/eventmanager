@@ -6,6 +6,7 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import MobileBottomNav from '@/Components/MobileBottomNav.vue';
+import PwaInstallPrompt from '@/Components/PwaInstallPrompt.vue';
 import { Link } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
@@ -92,6 +93,24 @@ const showingNavigationDropdown = ref(false);
                                     :active="route().current('users.*') || route().current('event.users.*')"
                                 >
                                     Users
+                                </NavLink>
+
+                                <!-- Admin & Event Manager: Email Campaigns -->
+                                <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin' || $page.props.auth.user.role === 'event_manager'"
+                                    :href="route('campaigns.index')"
+                                    :active="route().current('campaigns.*')"
+                                >
+                                    Campaigns
+                                </NavLink>
+
+                                <!-- Admin Only: Settings -->
+                                <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
+                                    :href="route('settings.index')"
+                                    :active="route().current('settings.*')"
+                                >
+                                    Settings
                                 </NavLink>
                             </div>
                         </div>
@@ -266,6 +285,24 @@ const showingNavigationDropdown = ref(false);
                         >
                             Users
                         </ResponsiveNavLink>
+
+                        <!-- Admin & Event Manager: Email Campaigns -->
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role === 'admin' || $page.props.auth.user.role === 'event_manager'"
+                            :href="route('campaigns.index')"
+                            :active="route().current('campaigns.*')"
+                        >
+                            Campaigns
+                        </ResponsiveNavLink>
+
+                        <!-- Admin Only: Settings -->
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role === 'admin'"
+                            :href="route('settings.index')"
+                            :active="route().current('settings.*')"
+                        >
+                            Settings
+                        </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -316,6 +353,9 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Mobile Bottom Navigation -->
             <MobileBottomNav />
+
+            <!-- PWA Install Prompt -->
+            <PwaInstallPrompt />
         </div>
     </div>
 </template>

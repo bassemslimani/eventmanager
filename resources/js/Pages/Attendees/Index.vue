@@ -8,6 +8,7 @@ import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
 import Tag from 'primevue/tag';
+import Card from 'primevue/card';
 
 interface Attendee {
     id: number;
@@ -82,22 +83,22 @@ const deleteAttendee = (id: number) => {
     <Head title="Attendees" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Attendees</h1>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Attendees</h1>
                     <Button
-                        label="Add New Attendee"
+                        label="Add Attendee"
                         icon="pi pi-plus"
-                        class="gradient-btn"
+                        class="gradient-btn w-full sm:w-auto"
                         @click="router.visit('/attendees/create')"
                     />
                 </div>
 
                 <!-- Filters -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-3 sm:p-4 mb-4 sm:mb-6">
+                    <div class="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 md:grid-cols-4 sm:gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">Event</label>
                             <Dropdown
@@ -124,11 +125,11 @@ const deleteAttendee = (id: number) => {
                             />
                         </div>
 
-                        <div>
+                        <div class="sm:col-span-2 md:col-span-1">
                             <label class="block text-sm font-medium mb-2">Search</label>
                             <InputText
                                 v-model="filters.search"
-                                placeholder="Search by name, email..."
+                                placeholder="Name, email..."
                                 class="w-full"
                                 @keyup.enter="searchAttendees"
                             />
@@ -139,14 +140,82 @@ const deleteAttendee = (id: number) => {
                                 label="Clear Filters"
                                 icon="pi pi-filter-slash"
                                 severity="secondary"
+                                class="w-full"
                                 @click="filters = { event_id: null, type: null, search: '' }; searchAttendees()"
                             />
                         </div>
                     </div>
                 </div>
 
-                <!-- Data Table -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                <!-- Mobile View - Cards -->
+                <div class="sm:hidden space-y-3 mb-4">
+                    <Card v-for="attendee in attendees.data" :key="attendee.id">
+                        <template #content>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <h3 class="font-bold text-base mb-1">{{ attendee.name }}</h3>
+                                        <p class="text-xs text-gray-500 break-all mb-2">{{ attendee.email }}</p>
+                                        <Tag
+                                            :value="attendee.type"
+                                            :severity="getTypeSeverity(attendee.type)"
+                                            class="text-xs"
+                                        />
+                                    </div>
+                                    <Tag
+                                        v-if="attendee.checked_in_at"
+                                        value="Checked In"
+                                        severity="success"
+                                        icon="pi pi-check"
+                                        class="ml-2"
+                                    />
+                                    <Tag
+                                        v-else
+                                        value="Pending"
+                                        severity="secondary"
+                                        class="ml-2"
+                                    />
+                                </div>
+
+                                <div v-if="attendee.company" class="text-sm">
+                                    <span class="text-gray-500">Company:</span>
+                                    <span class="ml-2 font-medium">{{ attendee.company }}</span>
+                                </div>
+
+                                <div class="text-sm">
+                                    <span class="text-gray-500">QR Code:</span>
+                                    <span class="ml-2 font-mono text-xs">{{ attendee.qr_code }}</span>
+                                </div>
+
+                                <div class="flex gap-2 pt-2">
+                                    <Button
+                                        icon="pi pi-pencil"
+                                        label="Edit"
+                                        severity="info"
+                                        class="flex-1"
+                                        @click="router.visit(`/attendees/${attendee.id}/edit`)"
+                                    />
+                                    <Button
+                                        icon="pi pi-trash"
+                                        label="Delete"
+                                        severity="danger"
+                                        outlined
+                                        class="flex-1"
+                                        @click="deleteAttendee(attendee.id)"
+                                    />
+                                </div>
+                            </div>
+                        </template>
+                    </Card>
+
+                    <div v-if="attendees.data.length === 0" class="text-center py-12">
+                        <i class="pi pi-users text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 text-lg">No attendees found</p>
+                    </div>
+                </div>
+
+                <!-- Desktop View - Table -->
+                <div class="hidden sm:block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
                     <DataTable
                         :value="attendees.data"
                         stripedRows

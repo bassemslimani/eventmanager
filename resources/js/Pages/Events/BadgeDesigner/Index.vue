@@ -73,7 +73,7 @@ const openVisualDesigner = (category: string, templateId?: number) => {
     <Head :title="`Badge Designer - ${event.name}`" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
@@ -85,19 +85,19 @@ const openVisualDesigner = (category: string, templateId?: number) => {
                         @click="router.visit('/events')"
                         class="mb-3"
                     />
-                    <h1 class="text-3xl font-bold text-gradient mb-2">Badge Designer</h1>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Badge Designer</h1>
                     <p class="text-gray-600 dark:text-gray-400">
                         Design professional badges for {{ event.name }}
                     </p>
                 </div>
 
                 <!-- Instructions Card -->
-                <Card class="glass-card mb-6">
+                <Card class="bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6">
                     <template #content>
                         <div class="flex items-start gap-4">
-                            <i class="pi pi-palette text-3xl text-purple-500"></i>
+                            <i class="pi pi-palette text-3xl text-gray-600 dark:text-gray-400"></i>
                             <div>
-                                <h3 class="font-bold text-lg mb-2">Professional Visual Badge Designer</h3>
+                                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Professional Visual Badge Designer</h3>
                                 <ul class="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
                                     <li><strong>Upload A4 template:</strong> Add your ready-made badge design (8.5cm × 12.5cm)</li>
                                     <li><strong>Drag & drop elements:</strong> Position attendee names, companies, QR codes, and logos precisely</li>
@@ -115,7 +115,7 @@ const openVisualDesigner = (category: string, templateId?: number) => {
                     <Card
                         v-for="template in templates"
                         :key="template.category"
-                        class="glass-card hover:shadow-xl transition-all"
+                        class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all"
                     >
                         <template #header>
                             <div class="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -139,8 +139,8 @@ const openVisualDesigner = (category: string, templateId?: number) => {
                             <div>
                                 <!-- Badge Preview -->
                                 <div>
-                                    <p class="text-sm font-medium mb-2">Badge Preview</p>
-                                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg h-64 flex items-center justify-center">
+                                    <p class="text-sm font-medium mb-2 text-gray-900 dark:text-white">Badge Preview</p>
+                                    <div class="bg-gray-50 dark:bg-gray-900 rounded-lg h-64 flex items-center justify-center">
                                         <Image
                                             v-if="template.front_template"
                                             :src="`/storage/${template.front_template}`"

@@ -5,6 +5,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
+import Card from 'primevue/card';
 
 interface Event {
     id: number;
@@ -46,26 +47,87 @@ const deleteEvent = (id: number) => {
     <Head title="Events" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Events</h1>
-                        <p class="text-gray-600 dark:text-gray-400">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Events</h1>
+                        <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                             Manage your events and conferences
                         </p>
                     </div>
                     <Button
-                        label="Create New Event"
+                        label="Create Event"
                         icon="pi pi-plus"
-                        class="gradient-btn"
+                        class="gradient-btn w-full sm:w-auto"
                         @click="router.visit('/events/create')"
                     />
                 </div>
 
-                <!-- Data Table -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                <!-- Mobile View - Cards -->
+                <div class="sm:hidden space-y-3 mb-4">
+                    <Card v-for="event in events.data" :key="event.id">
+                        <template #content>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <h3 class="font-bold text-base mb-1">{{ event.name }}</h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            {{ event.location }}
+                                        </p>
+                                    </div>
+                                    <Tag
+                                        :value="event.status"
+                                        :severity="getStatusSeverity(event.status)"
+                                        class="ml-2"
+                                    />
+                                </div>
+
+                                <div class="text-sm">
+                                    <span class="text-gray-500">Date:</span>
+                                    <span class="ml-2 font-medium">{{ new Date(event.date).toLocaleDateString() }}</span>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2 pt-2">
+                                    <Button
+                                        icon="pi pi-id-card"
+                                        label="Badges"
+                                        severity="success"
+                                        size="small"
+                                        class="text-xs"
+                                        @click="router.visit(`/events/${event.id}/badge-designer`)"
+                                    />
+                                    <Button
+                                        icon="pi pi-pencil"
+                                        label="Edit"
+                                        severity="warning"
+                                        size="small"
+                                        class="text-xs"
+                                        @click="router.visit(`/events/${event.id}/edit`)"
+                                    />
+                                    <Button
+                                        icon="pi pi-trash"
+                                        label="Delete"
+                                        severity="danger"
+                                        size="small"
+                                        outlined
+                                        class="text-xs"
+                                        @click="deleteEvent(event.id)"
+                                    />
+                                </div>
+                            </div>
+                        </template>
+                    </Card>
+
+                    <div v-if="events.data.length === 0" class="text-center py-12">
+                        <i class="pi pi-calendar text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 text-lg">No events found</p>
+                    </div>
+                </div>
+
+                <!-- Desktop View - Table -->
+                <div class="hidden sm:block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
                     <DataTable
                         :value="events.data"
                         stripedRows

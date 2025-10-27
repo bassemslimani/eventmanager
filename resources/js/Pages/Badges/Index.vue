@@ -8,6 +8,7 @@ import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
 import Tag from 'primevue/tag';
 import Checkbox from 'primevue/checkbox';
+import Card from 'primevue/card';
 
 interface Attendee {
     id: number;
@@ -98,41 +99,53 @@ const generateBulk = () => {
 const downloadBadge = async (id: number) => {
     try {
         console.log('Starting badge download for ID:', id);
-
         const response = await fetch(`/badges/download/${id}`);
-        console.log('Response status:', response.status);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to download badge');
         }
 
         const data = await response.json();
         console.log('Badge data received:', data);
 
-        if (!data.success) {
-            alert(data.error || 'Failed to download badge.');
-            return;
-        }
-
-        // Use professional PDF badge generator
-        console.log('Loading PDF generator...');
         const { generatePDFBadge } = await import('@/utils/badgeGenerator');
+        console.log('Badge generator imported');
 
-        console.log('Generating PDF...');
         await generatePDFBadge(data);
-
-        console.log('Badge PDF generated successfully');
-
+        console.log('Badge generated successfully');
     } catch (error) {
-        console.error('Error downloading badge:', error);
-
-        // More detailed error message
-        if (error instanceof Error) {
-            alert(`Failed to download badge: ${error.message}\n\nPlease check console for details.`);
-        } else {
-            alert('Failed to download badge. Please try again.');
-        }
+        console.error('Error in downloadBadge:', error);
+        alert(error instanceof Error ? error.message : 'Failed to download badge. Please try again.');
     }
+};
+
+const sendEmail = (attendeeId: number, attendeeName: string) => {
+    if (confirm(`Send badge email to ${attendeeName}?`)) {
+        router.post(`/badges/send-email/${attendeeId}`, {}, {
+            preserveState: true,
+            onSuccess: () => {
+                alert('Badge email sent successfully! The attendee will receive it shortly.');
+            },
+            onError: (errors) => {
+                alert('Failed to send email. Please try again.');
+                console.error(errors);
+            }
+        });
+    }
+};
+
+const toggleSelection = (attendee: Attendee) => {
+    const index = selectedAttendees.value.findIndex(a => a.id === attendee.id);
+    if (index > -1) {
+        selectedAttendees.value.splice(index, 1);
+    } else {
+        selectedAttendees.value.push(attendee);
+    }
+};
+
+const isSelected = (attendee: Attendee) => {
+    return selectedAttendees.value.some(a => a.id === attendee.id);
 };
 </script>
 
@@ -140,23 +153,23 @@ const downloadBadge = async (id: number) => {
     <Head title="Badge Generation" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Badge Generation</h1>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Badge Generation</h1>
                     <Button
-                        label="Generate Selected Badges"
+                        label="Generate Selected"
                         icon="pi pi-id-card"
-                        class="gradient-btn"
+                        class="gradient-btn w-full sm:w-auto"
                         :disabled="selectedAttendees.length === 0"
                         @click="generateBulk"
                     />
                 </div>
 
                 <!-- Filters -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-3 sm:p-4 mb-4 sm:mb-6">
+                    <div class="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 md:grid-cols-4 sm:gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">Event</label>
                             <Dropdown
@@ -201,14 +214,82 @@ const downloadBadge = async (id: number) => {
                                 label="Clear Filters"
                                 icon="pi pi-filter-slash"
                                 severity="secondary"
+                                class="w-full"
                                 @click="filters = { event_id: null, type: null, badge_status: null }; searchBadges()"
                             />
                         </div>
                     </div>
                 </div>
 
-                <!-- Data Table -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                <!-- Mobile View - Cards -->
+                <div class="sm:hidden space-y-3 mb-4">
+                    <Card v-for="attendee in attendees.data" :key="attendee.id">
+                        <template #content>
+                            <div class="space-y-3">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start gap-3 flex-1">
+                                        <Checkbox
+                                            :modelValue="isSelected(attendee)"
+                                            @update:modelValue="toggleSelection(attendee)"
+                                            binary
+                                        />
+                                        <div class="flex-1">
+                                            <h3 class="font-bold text-base mb-1">{{ attendee.name }}</h3>
+                                            <p class="text-xs text-gray-500 break-all">{{ attendee.email }}</p>
+                                            <p v-if="attendee.company" class="text-sm text-gray-600 mt-1">{{ attendee.company }}</p>
+                                        </div>
+                                    </div>
+                                    <Tag
+                                        v-if="attendee.badge_generated_at"
+                                        value="Generated"
+                                        severity="success"
+                                        icon="pi pi-check"
+                                    />
+                                    <Tag
+                                        v-else
+                                        value="Pending"
+                                        severity="warning"
+                                    />
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <Button
+                                        v-if="!attendee.badge_generated_at"
+                                        icon="pi pi-plus"
+                                        label="Generate"
+                                        severity="success"
+                                        class="flex-1"
+                                        @click="generateSingle(attendee.id)"
+                                    />
+                                    <template v-else>
+                                        <Button
+                                            icon="pi pi-download"
+                                            label="Download"
+                                            severity="info"
+                                            class="flex-1"
+                                            @click="downloadBadge(attendee.id)"
+                                        />
+                                        <Button
+                                            icon="pi pi-envelope"
+                                            label="Email"
+                                            severity="success"
+                                            class="flex-1"
+                                            @click="sendEmail(attendee.id, attendee.name)"
+                                        />
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </Card>
+
+                    <div v-if="attendees.data.length === 0" class="text-center py-12">
+                        <i class="pi pi-inbox text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 text-lg">No badges found</p>
+                    </div>
+                </div>
+
+                <!-- Desktop View - Table -->
+                <div class="hidden sm:block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
                     <DataTable
                         v-model:selection="selectedAttendees"
                         :value="attendees.data"
@@ -241,7 +322,7 @@ const downloadBadge = async (id: number) => {
                             </template>
                         </Column>
 
-                        <Column header="Actions" style="width: 200px">
+                        <Column header="Actions" style="width: 280px">
                             <template #body="slotProps">
                                 <div class="flex gap-2">
                                     <Button
@@ -252,14 +333,23 @@ const downloadBadge = async (id: number) => {
                                         size="small"
                                         @click="generateSingle(slotProps.data.id)"
                                     />
-                                    <Button
-                                        v-else
-                                        icon="pi pi-download"
-                                        label="Download"
-                                        severity="info"
-                                        size="small"
-                                        @click="downloadBadge(slotProps.data.id)"
-                                    />
+                                    <template v-else>
+                                        <Button
+                                            icon="pi pi-download"
+                                            label="Download"
+                                            severity="info"
+                                            size="small"
+                                            @click="downloadBadge(slotProps.data.id)"
+                                        />
+                                        <Button
+                                            icon="pi pi-envelope"
+                                            label="Email"
+                                            severity="success"
+                                            size="small"
+                                            @click="sendEmail(slotProps.data.id, slotProps.data.name)"
+                                            v-tooltip.top="'Send badge via email'"
+                                        />
+                                    </template>
                                 </div>
                             </template>
                         </Column>

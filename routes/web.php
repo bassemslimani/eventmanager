@@ -3,12 +3,14 @@
 use App\Http\Controllers\AttendeeController;
 use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\BadgeTemplateController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventBadgeTemplateController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +19,9 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // API Routes
+    Route::get('/api/attendees/search', [AttendeeController::class, 'search'])->name('api.attendees.search');
+
     // Dashboard - All authenticated users
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -41,6 +46,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
         Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+
+        // Settings (Admin only)
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings/mail', [SettingsController::class, 'updateMail'])->name('settings.mail.update');
+        Route::post('/settings/branding', [SettingsController::class, 'updateBranding'])->name('settings.branding.update');
+        Route::post('/settings/seo', [SettingsController::class, 'updateSeo'])->name('settings.seo.update');
+        Route::post('/settings/general', [SettingsController::class, 'updateGeneral'])->name('settings.general.update');
+        Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->name('settings.test-email');
     });
 
     // Event Manager & Admin Routes
@@ -60,6 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('badges/generate/{attendee}', [BadgeController::class, 'generate'])->name('badges.generate');
         Route::post('badges/generate-bulk', [BadgeController::class, 'generateBulk'])->name('badges.generate.bulk');
         Route::get('badges/download/{attendee}', [BadgeController::class, 'download'])->name('badges.download');
+        Route::post('badges/send-email/{attendee}', [BadgeController::class, 'sendEmail'])->name('badges.send-email');
 
         // Badge Templates
         Route::resource('badge-templates', BadgeTemplateController::class);
@@ -71,6 +85,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('import/process', [ImportController::class, 'process'])->name('import.process');
         Route::get('import/history', [ImportController::class, 'history'])->name('import.history');
         Route::get('attendees/import/template', [ImportController::class, 'downloadTemplate'])->name('attendees.import.template');
+
+        // Email Campaigns
+        Route::get('campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
+        Route::get('campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
+        Route::post('campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
+        Route::get('campaigns/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
+        Route::get('campaigns/{campaign}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
+        Route::put('campaigns/{campaign}', [CampaignController::class, 'update'])->name('campaigns.update');
+        Route::delete('campaigns/{campaign}', [CampaignController::class, 'destroy'])->name('campaigns.destroy');
+        Route::post('campaigns/{campaign}/send', [CampaignController::class, 'send'])->name('campaigns.send');
+        Route::post('campaigns/preview-recipients', [CampaignController::class, 'previewRecipients'])->name('campaigns.preview-recipients');
     });
 
     // Check-in Routes - All users (Agents, Event Managers, Admins)
@@ -78,6 +103,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('check-in/scan', [CheckInController::class, 'scan'])->name('checkin.scan');
     Route::get('check-in/manual', [CheckInController::class, 'manual'])->name('checkin.manual');
     Route::post('check-in/manual', [CheckInController::class, 'manualCheckIn'])->name('checkin.manual.submit');
+    Route::get('check-in/history', [CheckInController::class, 'history'])->name('checkin.history');
 
     // Profile - All users
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

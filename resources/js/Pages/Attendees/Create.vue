@@ -51,21 +51,21 @@ const submit = () => {
     <Head title="Create Attendee" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-3xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
-                    <h1 class="text-3xl font-bold text-gradient mb-2">Create New Attendee</h1>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create New Attendee</h1>
                     <p class="text-gray-600 dark:text-gray-400">
                         Add a new attendee to the system
                     </p>
                 </div>
 
                 <!-- Form -->
-                <form @submit.prevent="submit" class="glass-card p-6 space-y-6">
+                <form @submit.prevent="submit" class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 space-y-6">
                     <!-- Type -->
                     <div>
-                        <label class="block text-sm font-medium mb-2">Type *</label>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Type *</label>
                         <Dropdown
                             v-model="form.type"
                             :options="typeOptions"
@@ -80,7 +80,7 @@ const submit = () => {
 
                     <!-- Event -->
                     <div v-if="events.length > 0">
-                        <label class="block text-sm font-medium mb-2">Event (Optional)</label>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Event (Optional)</label>
                         <Dropdown
                             v-model="form.event_id"
                             :options="events"
@@ -94,7 +94,7 @@ const submit = () => {
                     <!-- Name -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">Name (English) *</label>
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Name (English) *</label>
                             <InputText
                                 v-model="form.name"
                                 placeholder="John Doe"
@@ -105,7 +105,7 @@ const submit = () => {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Name (Arabic)</label>
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Name (Arabic)</label>
                             <InputText
                                 v-model="form.name_ar"
                                 placeholder="جون دو"
@@ -118,7 +118,7 @@ const submit = () => {
                     <!-- Email & Mobile -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">Email *</label>
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Email *</label>
                             <InputText
                                 v-model="form.email"
                                 type="email"
@@ -130,7 +130,7 @@ const submit = () => {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Mobile</label>
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Mobile</label>
                             <InputText
                                 v-model="form.mobile"
                                 placeholder="+966 50 123 4567"
@@ -142,7 +142,7 @@ const submit = () => {
                     <!-- Company (for Exhibitors and Guests) -->
                     <div v-if="form.type !== 'organizer'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">Company (English)</label>
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Company (English)</label>
                             <InputText
                                 v-model="form.company"
                                 placeholder="Company Name"
@@ -151,7 +151,7 @@ const submit = () => {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Company (Arabic)</label>
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Company (Arabic)</label>
                             <InputText
                                 v-model="form.company_ar"
                                 placeholder="اسم الشركة"
@@ -163,7 +163,7 @@ const submit = () => {
 
                     <!-- Category (for Exhibitors) -->
                     <div v-if="form.type === 'exhibitor'">
-                        <label class="block text-sm font-medium mb-2">Category</label>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category</label>
                         <Dropdown
                             v-model="form.category"
                             :options="categoryOptions"
@@ -177,7 +177,7 @@ const submit = () => {
                     <!-- Role & Department (for Organizers) -->
                     <div v-if="form.type === 'organizer'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">Role</label>
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Role</label>
                             <InputText
                                 v-model="form.role"
                                 placeholder="Event Manager"
@@ -186,7 +186,7 @@ const submit = () => {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Department</label>
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Department</label>
                             <InputText
                                 v-model="form.department"
                                 placeholder="Operations"

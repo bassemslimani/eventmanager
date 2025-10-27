@@ -460,20 +460,21 @@ const save = () => {
     <Head :title="`Visual Badge Designer - ${getCategoryLabel()}`" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <!-- Header -->
-            <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-                <div class="max-w-[1920px] mx-auto flex justify-between items-center">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+            <div class="max-w-7xl mx-auto">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center gap-4">
                         <Button
                             icon="pi pi-arrow-left"
                             text
                             rounded
+                            severity="secondary"
                             @click="router.visit(`/events/${event.id}/badge-designer`)"
                         />
                         <div>
-                            <h1 class="text-2xl font-bold">Visual Badge Designer</h1>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Visual Badge Designer</h1>
+                            <p class="text-gray-600 dark:text-gray-400">
                                 {{ getCategoryLabel() }} Badge - {{ BADGE_WIDTH_CM }}cm × {{ BADGE_HEIGHT_CM }}cm
                             </p>
                         </div>
@@ -487,24 +488,21 @@ const save = () => {
                         <Button
                             label="Save Design"
                             icon="pi pi-save"
-                            severity="success"
-                            size="large"
+                            class="gradient-btn"
                             @click="save"
                             :loading="form.processing"
                         />
                     </div>
                 </div>
-            </div>
 
-            <!-- Main Content -->
-            <div class="max-w-[1920px] mx-auto p-6">
+                <!-- Main Content -->
                 <div class="grid grid-cols-12 gap-6">
                     <!-- Left Panel: Templates & Elements -->
                     <div class="col-span-3 space-y-6">
                         <!-- Template Upload -->
-                        <Card>
+                        <Card class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
                             <template #title>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 text-gray-900 dark:text-white">
                                     <i class="pi pi-images"></i>
                                     <span>A4 Template</span>
                                 </div>
@@ -545,9 +543,9 @@ const save = () => {
                         </Card>
 
                         <!-- Add Elements -->
-                        <Card>
+                        <Card class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
                             <template #title>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 text-gray-900 dark:text-white">
                                     <i class="pi pi-plus-circle"></i>
                                     <span>Add Elements</span>
                                 </div>
@@ -580,9 +578,9 @@ const save = () => {
                         </Card>
 
                         <!-- Elements List -->
-                        <Card>
+                        <Card class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
                             <template #title>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 text-gray-900 dark:text-white">
                                     <i class="pi pi-list"></i>
                                     <span>Elements ({{ elements.length }})</span>
                                 </div>
@@ -594,8 +592,8 @@ const save = () => {
                                         :key="element.id"
                                         class="p-3 rounded cursor-pointer transition-all border"
                                         :class="{
-                                            'bg-blue-50 border-blue-500 dark:bg-blue-900/20': selectedElement?.id === element.id,
-                                            'bg-white border-gray-200 hover:bg-gray-50 dark:bg-gray-700': selectedElement?.id !== element.id
+                                            'bg-gray-100 border-gray-400 dark:bg-gray-600 dark:border-gray-500': selectedElement?.id === element.id,
+                                            'bg-white border-gray-200 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 hover:dark:bg-gray-600': selectedElement?.id !== element.id
                                         }"
                                         @click="selectedElement = element"
                                     >
@@ -637,11 +635,11 @@ const save = () => {
 
                     <!-- Center Panel: Canvas -->
                     <div class="col-span-6">
-                        <Card>
+                        <Card class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
                             <template #title>
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
-                                        <span class="font-semibold">Badge Canvas</span>
+                                        <span class="font-semibold text-gray-900 dark:text-white">Badge Canvas</span>
                                         <span class="text-gray-400">|</span>
                                         <div class="flex items-center gap-2">
                                             <i class="pi pi-search-minus cursor-pointer text-lg" @click="zoom = Math.max(0.5, zoom - 0.25)"></i>
@@ -666,7 +664,7 @@ const save = () => {
                                 </div>
                             </template>
                             <template #content>
-                                <div class="flex justify-center items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-8 min-h-[700px] overflow-auto">
+                                <div class="flex justify-center items-center bg-gray-50 dark:bg-gray-900 rounded-lg p-8 min-h-[900px] overflow-auto">
                                     <div
                                         class="badge-canvas relative bg-white shadow-2xl rounded"
                                         :style="{
@@ -693,8 +691,8 @@ const save = () => {
                                             :key="element.id"
                                             class="absolute cursor-move transition-all"
                                             :class="{
-                                                'ring-2 ring-blue-500 ring-offset-2': selectedElement?.id === element.id,
-                                                'hover:ring-1 hover:ring-blue-300': selectedElement?.id !== element.id
+                                                'ring-2 ring-gray-500 ring-offset-2 dark:ring-gray-400': selectedElement?.id === element.id,
+                                                'hover:ring-1 hover:ring-gray-300 dark:hover:ring-gray-500': selectedElement?.id !== element.id
                                             }"
                                             :style="{
                                                 left: element.type === 'text' && (element as TextZone).align === 'center' ? cmToPx(element.x) + 'px' :
@@ -748,8 +746,8 @@ const save = () => {
 
                                         <!-- Center guides -->
                                         <div v-if="showGrid" class="absolute inset-0 pointer-events-none">
-                                            <div class="absolute left-1/2 top-0 bottom-0 w-px bg-blue-400 opacity-40"></div>
-                                            <div class="absolute top-1/2 left-0 right-0 h-px bg-blue-400 opacity-40"></div>
+                                            <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gray-400 dark:bg-gray-500 opacity-40"></div>
+                                            <div class="absolute top-1/2 left-0 right-0 h-px bg-gray-400 dark:bg-gray-500 opacity-40"></div>
                                         </div>
 
                                         <!-- No template placeholder -->
@@ -771,9 +769,9 @@ const save = () => {
 
                     <!-- Right Panel: Properties -->
                     <div class="col-span-3">
-                        <Card class="sticky top-6">
+                        <Card class="sticky top-6 bg-white dark:bg-gray-800 shadow-md">
                             <template #title>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 text-gray-900 dark:text-white">
                                     <i class="pi pi-sliders-h"></i>
                                     <span>Properties</span>
                                 </div>

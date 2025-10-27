@@ -53,7 +53,7 @@ const submit = () => {
     <Head :title="`Edit ${event.name}`" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-4xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
@@ -65,19 +65,19 @@ const submit = () => {
                         @click="router.visit('/events')"
                         class="mb-3"
                     />
-                    <h1 class="text-3xl font-bold text-gradient">Edit Event</h1>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Event</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">
                         Update event information
                     </p>
                 </div>
 
                 <!-- Form -->
-                <Card class="glass-card">
+                <Card class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
                     <template #content>
                         <form @submit.prevent="submit" class="space-y-6">
                             <!-- Event Name (English) -->
                             <div>
-                                <label for="name" class="block text-sm font-medium mb-2">
+                                <label for="name" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                     Event Name (English) <span class="text-red-500">*</span>
                                 </label>
                                 <InputText
@@ -92,7 +92,7 @@ const submit = () => {
 
                             <!-- Event Name (Arabic) -->
                             <div>
-                                <label for="name_ar" class="block text-sm font-medium mb-2">
+                                <label for="name_ar" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                     Event Name (Arabic)
                                 </label>
                                 <InputText
@@ -106,7 +106,7 @@ const submit = () => {
 
                             <!-- Date -->
                             <div>
-                                <label for="date" class="block text-sm font-medium mb-2">
+                                <label for="date" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                     Event Date <span class="text-red-500">*</span>
                                 </label>
                                 <Calendar
@@ -122,7 +122,7 @@ const submit = () => {
 
                             <!-- Location (English) -->
                             <div>
-                                <label for="location" class="block text-sm font-medium mb-2">
+                                <label for="location" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                     Location (English) <span class="text-red-500">*</span>
                                 </label>
                                 <InputText
@@ -137,7 +137,7 @@ const submit = () => {
 
                             <!-- Location (Arabic) -->
                             <div>
-                                <label for="location_ar" class="block text-sm font-medium mb-2">
+                                <label for="location_ar" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                     Location (Arabic)
                                 </label>
                                 <InputText
@@ -151,7 +151,7 @@ const submit = () => {
 
                             <!-- Description (English) -->
                             <div>
-                                <label for="description" class="block text-sm font-medium mb-2">
+                                <label for="description" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                     Description (English)
                                 </label>
                                 <Textarea
@@ -165,7 +165,7 @@ const submit = () => {
 
                             <!-- Description (Arabic) -->
                             <div>
-                                <label for="description_ar" class="block text-sm font-medium mb-2">
+                                <label for="description_ar" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                     Description (Arabic)
                                 </label>
                                 <Textarea
@@ -180,7 +180,7 @@ const submit = () => {
 
                             <!-- Status -->
                             <div>
-                                <label for="status" class="block text-sm font-medium mb-2">
+                                <label for="status" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                     Status <span class="text-red-500">*</span>
                                 </label>
                                 <Dropdown

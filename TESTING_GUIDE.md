@@ -15,6 +15,12 @@ Password: password
 Access: Full system access
 ```
 
+
+
+Admin: admin@qrmh.com / password
+Manager: manager@qrmh.com / password
+Scanner: scanner@qrmh.com / password
+
 ### Event Managers
 ```
 Manager 1:

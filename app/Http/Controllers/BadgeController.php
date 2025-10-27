@@ -175,4 +175,30 @@ class BadgeController extends Controller
             'qr_code_svg' => $qrCodeSvg,
         ]);
     }
+
+    /**
+     * Send badge via email
+     */
+    public function sendEmail(Request $request, Attendee $attendee)
+    {
+        if (!$attendee->email) {
+            return back()->with('error', 'Attendee does not have an email address.');
+        }
+
+        if (!$attendee->event_id) {
+            return back()->with('error', 'Attendee must be assigned to an event.');
+        }
+
+        if (!$attendee->badge_generated_at) {
+            return back()->with('error', 'Badge must be generated first before sending via email.');
+        }
+
+        // Load the attendee's event
+        $attendee->load('event');
+
+        // Dispatch job to send email (with badge data, will generate PDF in job)
+        \App\Jobs\SendBadgeEmailDirect::dispatch($attendee);
+
+        return back()->with('success', 'Badge email is being sent to ' . $attendee->email . '!');
+    }
 }

@@ -18,59 +18,95 @@ class CheckInController extends Controller
 
     public function scan(Request $request)
     {
-        $validated = $request->validate([
-            'qr_code' => 'required|string',
-            'event_id' => 'nullable|exists:events,id',
-            'location' => 'nullable|string|max:255',
-        ]);
+        try {
+            \Log::info('QR Code Scan Request', [
+                'qr_code' => $request->qr_code,
+                'user_id' => auth()->id(),
+            ]);
 
-        // Find attendee by QR code or UUID
-        $attendee = Attendee::where('qr_code', $validated['qr_code'])
-            ->orWhere('qr_uuid', $validated['qr_code'])
-            ->first();
+            $validated = $request->validate([
+                'qr_code' => 'required|string',
+                'event_id' => 'nullable|exists:events,id',
+                'location' => 'nullable|string|max:255',
+            ]);
 
-        if (!$attendee) {
+            // Find attendee by QR code or UUID
+            $attendee = Attendee::where('qr_code', $validated['qr_code'])
+                ->orWhere('qr_uuid', $validated['qr_code'])
+                ->first();
+
+            if (!$attendee) {
+                \Log::warning('Attendee not found', [
+                    'qr_code' => $validated['qr_code'],
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attendee not found. Please check the QR code.',
+                ], 404);
+            }
+
+            // Check if already checked in
+            if ($attendee->checked_in_at) {
+                \Log::info('Attendee already checked in', [
+                    'attendee_id' => $attendee->id,
+                    'checked_in_at' => $attendee->checked_in_at,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attendee already checked in at ' . $attendee->checked_in_at->format('H:i'),
+                    'attendee' => $attendee,
+                ], 200);
+            }
+
+            // Update attendee
+            $attendee->update([
+                'checked_in_at' => now(),
+                'checked_in_by' => auth()->id(),
+            ]);
+
+            // Create check-in record
+            CheckIn::create([
+                'attendee_id' => $attendee->id,
+                'event_id' => $validated['event_id'] ?? $attendee->event_id,
+                'scanned_by' => auth()->id(),
+                'scanned_at' => now(),
+                'location' => $validated['location'] ?? null,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'device_info' => [
+                    'platform' => $request->header('sec-ch-ua-platform'),
+                    'mobile' => $request->header('sec-ch-ua-mobile'),
+                ],
+            ]);
+
+            \Log::info('Check-in successful', [
+                'attendee_id' => $attendee->id,
+                'attendee_name' => $attendee->name,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Check-in successful!',
+                'attendee' => $attendee->fresh(),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error in scan', [
+                'errors' => $e->errors(),
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            \Log::error('Error processing check-in scan', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Attendee not found.',
-            ], 404);
+                'message' => 'Server error: ' . $e->getMessage(),
+            ], 500);
         }
-
-        // Check if already checked in
-        if ($attendee->checked_in_at) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Attendee already checked in.',
-                'attendee' => $attendee,
-            ], 400);
-        }
-
-        // Update attendee
-        $attendee->update([
-            'checked_in_at' => now(),
-            'checked_in_by' => auth()->id(),
-        ]);
-
-        // Create check-in record
-        CheckIn::create([
-            'attendee_id' => $attendee->id,
-            'event_id' => $validated['event_id'] ?? $attendee->event_id,
-            'scanned_by' => auth()->id(),
-            'scanned_at' => now(),
-            'location' => $validated['location'] ?? null,
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'device_info' => [
-                'platform' => $request->header('sec-ch-ua-platform'),
-                'mobile' => $request->header('sec-ch-ua-mobile'),
-            ],
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Check-in successful!',
-            'attendee' => $attendee->fresh(),
-        ]);
     }
 
     public function manual(): Response
