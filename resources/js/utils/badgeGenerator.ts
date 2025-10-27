@@ -24,8 +24,10 @@ export interface BadgeData {
     template: {
         front_template_url: string | null;
         back_template_url: string | null;
-        badge_width: number;
-        badge_height: number;
+        badge_width: number;  // legacy px
+        badge_height: number;  // legacy px
+        badge_width_cm: number;  // new cm measurement
+        badge_height_cm: number;  // new cm measurement
         font_family: string;
         primary_color: string;
         secondary_color: string;
@@ -33,6 +35,7 @@ export interface BadgeData {
         show_qr_code: boolean;
         show_logo: boolean;
         show_category_badge: boolean;
+        elements?: any[];  // element-based layout
     };
     qr_code_svg: string;
 }
@@ -53,10 +56,14 @@ export async function generatePDFBadge(data: BadgeData): Promise<void> {
         const { jsPDF } = await import('jspdf');
 
         console.log('Creating PDF document...');
+        // Use cm as the unit for standard badge size (8.5cm x 12.5cm)
+        const badgeWidthCm = data.template.badge_width_cm || 8.5;
+        const badgeHeightCm = data.template.badge_height_cm || 12.5;
+
         const pdf = new jsPDF({
             orientation: 'portrait',
-            unit: 'px',
-            format: [data.template.badge_width, data.template.badge_height],
+            unit: 'cm',
+            format: [badgeWidthCm, badgeHeightCm],
         });
 
         // Generate Front Page
@@ -89,36 +96,37 @@ export async function generatePDFBadge(data: BadgeData): Promise<void> {
  */
 async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
     const { template, attendee, event } = data;
-    const width = template.badge_width;
-    const height = template.badge_height;
+    const widthCm = template.badge_width_cm || 8.5;
+    const heightCm = template.badge_height_cm || 12.5;
 
-    console.log('Front page dimensions:', width, 'x', height);
+    console.log('Front page dimensions:', widthCm, 'cm x', heightCm, 'cm');
 
     // Draw background template if available
     if (template.front_template_url) {
         console.log('Loading front template:', template.front_template_url);
         try {
-            await addImageToPDF(pdf, template.front_template_url, 0, 0, width, height);
+            await addImageToPDF(pdf, template.front_template_url, 0, 0, widthCm, heightCm);
             console.log('Front template loaded successfully');
         } catch (error) {
             console.error('Failed to load front template:', error);
             // Draw white background as fallback
             pdf.setFillColor(255, 255, 255);
-            pdf.rect(0, 0, width, height, 'F');
+            pdf.rect(0, 0, widthCm, heightCm, 'F');
             console.log('Using white background as fallback');
         }
     } else {
         console.log('No front template, using white background');
         // White background
         pdf.setFillColor(255, 255, 255);
-        pdf.rect(0, 0, width, height, 'F');
+        pdf.rect(0, 0, widthCm, heightCm, 'F');
     }
 
     // Add Event Logo if available (preserve aspect ratio)
     if (template.show_logo && event.logo_url) {
         console.log('Loading event logo:', event.logo_url);
         try {
-            await addImageToPDFWithAspectRatio(pdf, event.logo_url, width / 2 - 60, 20, 120, 80);
+            // Logo: 4cm wide, 2cm tall, centered horizontally
+            await addImageToPDFWithAspectRatio(pdf, event.logo_url, widthCm / 2 - 2, 0.5, 4, 2);
             console.log('Event logo loaded successfully');
         } catch (error) {
             console.error('Failed to load event logo:', error);
@@ -129,27 +137,27 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
     pdf.setFont(template.font_family || 'helvetica', 'bold');
     pdf.setFontSize(16);
     pdf.setTextColor(...hexToRGB(template.secondary_color));
-    pdf.text(event.name, width / 2, 110, { align: 'center' });
+    pdf.text(event.name, widthCm / 2, 3, { align: 'center' });
 
     // Add Event Date and Location
     pdf.setFont(template.font_family || 'helvetica', 'normal');
     pdf.setFontSize(11);
     pdf.setTextColor(...hexToRGB(template.secondary_color));
-    pdf.text(event.date, width / 2, 130, { align: 'center' });
-    pdf.text(event.location, width / 2, 145, { align: 'center' });
+    pdf.text(event.date, widthCm / 2, 3.7, { align: 'center' });
+    pdf.text(event.location, widthCm / 2, 4.2, { align: 'center' });
 
     // Add Attendee Name
     pdf.setFont(template.font_family || 'helvetica', 'bold');
     pdf.setFontSize(24);
     pdf.setTextColor(...hexToRGB(template.primary_color));
-    pdf.text(attendee.name, width / 2, height / 2 - 20, { align: 'center' });
+    pdf.text(attendee.name, widthCm / 2, 5.5, { align: 'center' });
 
     // Add Company if available
     if (attendee.company) {
         pdf.setFont(template.font_family || 'helvetica', 'normal');
         pdf.setFontSize(16);
         pdf.setTextColor(...hexToRGB(template.secondary_color));
-        pdf.text(attendee.company, width / 2, height / 2 + 10, { align: 'center' });
+        pdf.text(attendee.company, widthCm / 2, 6.5, { align: 'center' });
     }
 
     // Add Attendee Type/Category
@@ -157,20 +165,20 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
     pdf.setFontSize(12);
     pdf.setTextColor(...hexToRGB(template.primary_color));
     const typeLabel = attendee.type.charAt(0).toUpperCase() + attendee.type.slice(1);
-    pdf.text(typeLabel, width / 2, height / 2 + 35, { align: 'center' });
+    pdf.text(typeLabel, widthCm / 2, 7.2, { align: 'center' });
 
-    // Add QR Code with primary color (if enabled)
+    // Add QR Code (if enabled)
     if (template.show_qr_code) {
         console.log('Adding QR code to front page');
-        const qrSize = 120;
-        const qrX = width / 2 - qrSize / 2;
-        const qrY = height - qrSize - 80;
+        const qrSizeCm = 2.5;  // 2.5cm QR code
+        const qrX = widthCm / 2 - qrSizeCm / 2;
+        const qrY = 8.5;  // Start QR code at 8.5cm from top
 
         // Convert SVG QR code to image and add to PDF
         const qrDataUrl = svgToDataURL(data.qr_code_svg);
         console.log('QR code data URL length:', qrDataUrl.length);
         try {
-            pdf.addImage(qrDataUrl, 'SVG', qrX, qrY, qrSize, qrSize);
+            pdf.addImage(qrDataUrl, 'SVG', qrX, qrY, qrSizeCm, qrSizeCm);
             console.log('QR code added successfully');
         } catch (error) {
             console.error('Failed to add QR code:', error);
@@ -180,12 +188,12 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
         pdf.setFont(template.font_family || 'helvetica', 'normal');
         pdf.setFontSize(10);
         pdf.setTextColor(...hexToRGB(template.primary_color));
-        pdf.text(attendee.qr_uuid, width / 2, qrY + qrSize + 15, { align: 'center' });
+        pdf.text(attendee.qr_uuid, widthCm / 2, 11.2, { align: 'center' });
 
         // Add helper text
         pdf.setFontSize(8);
         pdf.setTextColor(100, 100, 100);
-        pdf.text('Scan QR or enter code manually', width / 2, qrY + qrSize + 28, { align: 'center' });
+        pdf.text('Scan QR or enter code manually', widthCm / 2, 11.7, { align: 'center' });
         console.log('QR code UUID and helper text added');
     }
 }
@@ -195,42 +203,42 @@ async function generateBadgeFront(pdf: any, data: BadgeData): Promise<void> {
  */
 async function generateBadgeBack(pdf: any, data: BadgeData): Promise<void> {
     const { template, attendee, event } = data;
-    const width = template.badge_width;
-    const height = template.badge_height;
+    const widthCm = template.badge_width_cm || 8.5;
+    const heightCm = template.badge_height_cm || 12.5;
 
-    console.log('Back page dimensions:', width, 'x', height);
+    console.log('Back page dimensions:', widthCm, 'cm x', heightCm, 'cm');
 
     // Draw background template if available
     if (template.back_template_url) {
         console.log('Loading back template:', template.back_template_url);
         try {
-            await addImageToPDF(pdf, template.back_template_url, 0, 0, width, height);
+            await addImageToPDF(pdf, template.back_template_url, 0, 0, widthCm, heightCm);
             console.log('Back template loaded successfully');
         } catch (error) {
             console.error('Failed to load back template:', error);
             // Draw white background as fallback
             pdf.setFillColor(255, 255, 255);
-            pdf.rect(0, 0, width, height, 'F');
+            pdf.rect(0, 0, widthCm, heightCm, 'F');
             console.log('Using white background as fallback');
         }
     } else {
         console.log('No back template, using white background');
         // White background
         pdf.setFillColor(255, 255, 255);
-        pdf.rect(0, 0, width, height, 'F');
+        pdf.rect(0, 0, widthCm, heightCm, 'F');
     }
 
     // Add Event Info
     pdf.setFont(template.font_family || 'helvetica', 'bold');
     pdf.setFontSize(16);
     pdf.setTextColor(...hexToRGB(template.primary_color));
-    pdf.text(event.name, width / 2, 50, { align: 'center' });
+    pdf.text(event.name, widthCm / 2, 1.5, { align: 'center' });
 
     pdf.setFont(template.font_family || 'helvetica', 'normal');
     pdf.setFontSize(12);
     pdf.setTextColor(...hexToRGB(template.secondary_color));
-    pdf.text(event.location, width / 2, 75, { align: 'center' });
-    pdf.text(event.date, width / 2, 95, { align: 'center' });
+    pdf.text(event.location, widthCm / 2, 2.5, { align: 'center' });
+    pdf.text(event.date, widthCm / 2, 3.2, { align: 'center' });
 
     // Add Terms and Conditions if available
     if (template.terms_and_conditions) {
@@ -238,15 +246,15 @@ async function generateBadgeBack(pdf: any, data: BadgeData): Promise<void> {
         pdf.setFontSize(10);
         pdf.setTextColor(60, 60, 60);
 
-        const terms = pdf.splitTextToSize(template.terms_and_conditions, width - 40);
-        pdf.text(terms, width / 2, height / 2, { align: 'center', maxWidth: width - 40 });
+        const terms = pdf.splitTextToSize(template.terms_and_conditions, widthCm - 2);
+        pdf.text(terms, widthCm / 2, heightCm / 2, { align: 'center', maxWidth: widthCm - 2 });
     }
 
     // Add Contact Info
     pdf.setFont(template.font_family || 'helvetica', 'normal');
     pdf.setFontSize(9);
     pdf.setTextColor(100, 100, 100);
-    pdf.text('Email: ' + attendee.email, width / 2, height - 40, { align: 'center' });
+    pdf.text('Email: ' + attendee.email, widthCm / 2, heightCm - 1, { align: 'center' });
 }
 
 /**
