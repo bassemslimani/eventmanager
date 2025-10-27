@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendee;
 use App\Models\BadgeTemplate;
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,13 +19,18 @@ class BadgeController extends Controller
     {
         $query = Attendee::with('event');
 
+        // Filter by event
+        if ($request->has('event_id') && $request->event_id) {
+            $query->where('event_id', $request->event_id);
+        }
+
         // Filter by type
-        if ($request->has('type')) {
+        if ($request->has('type') && $request->type) {
             $query->where('type', $request->type);
         }
 
         // Only show attendees without badges or filter by badge status
-        if ($request->has('badge_status')) {
+        if ($request->has('badge_status') && $request->badge_status) {
             if ($request->badge_status === 'generated') {
                 $query->whereNotNull('badge_generated_at');
             } elseif ($request->badge_status === 'pending') {
@@ -34,11 +40,13 @@ class BadgeController extends Controller
 
         $attendees = $query->latest()->paginate(20);
         $templates = BadgeTemplate::where('is_active', true)->get();
+        $events = Event::orderBy('name')->get();
 
         return Inertia::render('Badges/Index', [
             'attendees' => $attendees,
             'templates' => $templates,
-            'filters' => $request->only(['type', 'badge_status']),
+            'events' => $events,
+            'filters' => $request->only(['type', 'badge_status', 'event_id']),
         ]);
     }
 
@@ -129,7 +137,6 @@ class BadgeController extends Controller
 
         // Prepare URLs
         $frontTemplateUrl = $template->front_template ? asset('storage/' . $template->front_template) : null;
-        $backTemplateUrl = $template->back_template ? asset('storage/' . $template->back_template) : null;
         $eventLogoUrl = $event->logo ? asset('storage/' . $event->logo) : null;
 
         return response()->json([
@@ -141,7 +148,7 @@ class BadgeController extends Controller
                 'company_ar' => $attendee->company_ar,
                 'type' => $attendee->type,
                 'email' => $attendee->email,
-                'qr_uuid' => $attendee->qr_uuid, // Add QR UUID for manual entry
+                'qr_uuid' => $attendee->qr_uuid,
             ],
             'event' => [
                 'name' => $event->name,
@@ -152,17 +159,14 @@ class BadgeController extends Controller
             ],
             'template' => [
                 'front_template_url' => $frontTemplateUrl,
-                'back_template_url' => $backTemplateUrl,
                 'badge_width' => $template->badge_width,
                 'badge_height' => $template->badge_height,
-                'badge_width_cm' => $template->badge_width_cm ?? 8.5,  // Standard badge size
+                'badge_width_cm' => $template->badge_width_cm ?? 8.5,
                 'badge_height_cm' => $template->badge_height_cm ?? 12.5,
                 'font_family' => $template->font_family,
                 'primary_color' => $template->primary_color,
                 'secondary_color' => $template->secondary_color,
                 'terms_and_conditions' => $template->terms_and_conditions,
-                'front_layout' => $template->front_layout,
-                'back_layout' => $template->back_layout,
                 'elements' => $template->elements,
                 'show_qr_code' => $template->show_qr_code,
                 'show_logo' => $template->show_logo,

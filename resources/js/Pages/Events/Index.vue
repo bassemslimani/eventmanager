@@ -46,12 +46,12 @@ const deleteEvent = (id: number) => {
     <Head title="Events" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-gradient mb-2">Events</h1>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Events</h1>
                         <p class="text-gray-600 dark:text-gray-400">
                             Manage your events and conferences
                         </p>
@@ -65,7 +65,7 @@ const deleteEvent = (id: number) => {
                 </div>
 
                 <!-- Data Table -->
-                <div class="glass-card overflow-hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
                     <DataTable
                         :value="events.data"
                         stripedRows

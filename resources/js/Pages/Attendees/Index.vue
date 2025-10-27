@@ -19,21 +19,29 @@ interface Attendee {
     checked_in_at: string | null;
 }
 
+interface Event {
+    id: number;
+    name: string;
+}
+
 interface Props {
     attendees: {
         data: Attendee[];
         links: any[];
         meta: any;
     };
+    events: Event[];
     filters: {
         type?: string;
         search?: string;
+        event_id?: number;
     };
 }
 
 const props = defineProps<Props>();
 
 const filters = ref({
+    event_id: props.filters.event_id || null,
     type: props.filters.type || null,
     search: props.filters.search || '',
 });
@@ -89,14 +97,17 @@ const deleteAttendee = (id: number) => {
 
                 <!-- Filters -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">Search</label>
-                            <InputText
-                                v-model="filters.search"
-                                placeholder="Search by name, email..."
+                            <label class="block text-sm font-medium mb-2">Event</label>
+                            <Dropdown
+                                v-model="filters.event_id"
+                                :options="[{ id: null, name: 'All Events' }, ...events]"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Filter by event"
                                 class="w-full"
-                                @keyup.enter="searchAttendees"
+                                @change="searchAttendees"
                             />
                         </div>
 
@@ -113,12 +124,22 @@ const deleteAttendee = (id: number) => {
                             />
                         </div>
 
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Search</label>
+                            <InputText
+                                v-model="filters.search"
+                                placeholder="Search by name, email..."
+                                class="w-full"
+                                @keyup.enter="searchAttendees"
+                            />
+                        </div>
+
                         <div class="flex items-end">
                             <Button
                                 label="Clear Filters"
                                 icon="pi pi-filter-slash"
                                 severity="secondary"
-                                @click="filters = { type: null, search: '' }; searchAttendees()"
+                                @click="filters = { event_id: null, type: null, search: '' }; searchAttendees()"
                             />
                         </div>
                     </div>

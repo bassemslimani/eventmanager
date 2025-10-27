@@ -70,10 +70,10 @@ const onFileSelect = (event: any) => {
 };
 
 const submit = () => {
-    form.post(`/badge-templates/${props.template.id}`, {
-        forceFormData: true,
-        _method: 'put',
-    });
+    form.transform(data => ({ ...data, _method: 'PUT' }))
+        .post(`/badge-templates/${props.template.id}`, {
+            forceFormData: true,
+        });
 };
 </script>
 

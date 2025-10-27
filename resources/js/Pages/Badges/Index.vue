@@ -19,6 +19,11 @@ interface Attendee {
     badge_generated_at: string | null;
 }
 
+interface Event {
+    id: number;
+    name: string;
+}
+
 interface Props {
     attendees: {
         data: Attendee[];
@@ -26,15 +31,18 @@ interface Props {
         meta: any;
     };
     templates: any[];
+    events: Event[];
     filters: {
         type?: string;
         badge_status?: string;
+        event_id?: number;
     };
 }
 
 const props = defineProps<Props>();
 
 const filters = ref({
+    event_id: props.filters.event_id || null,
     type: props.filters.type || null,
     badge_status: props.filters.badge_status || null,
 });
@@ -148,7 +156,20 @@ const downloadBadge = async (id: number) => {
 
                 <!-- Filters -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Event</label>
+                            <Dropdown
+                                v-model="filters.event_id"
+                                :options="[{ id: null, name: 'All Events' }, ...events]"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Filter by event"
+                                class="w-full"
+                                @change="searchBadges"
+                            />
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium mb-2">Type</label>
                             <Dropdown
@@ -180,7 +201,7 @@ const downloadBadge = async (id: number) => {
                                 label="Clear Filters"
                                 icon="pi pi-filter-slash"
                                 severity="secondary"
-                                @click="filters = { type: null, badge_status: null }; searchBadges()"
+                                @click="filters = { event_id: null, type: null, badge_status: null }; searchBadges()"
                             />
                         </div>
                     </div>

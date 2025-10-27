@@ -10,18 +10,19 @@
 
 @layer base {
   :root {
-    /* Primary Gradient Colors */
-    --gradient-from: #10b981;
-    --gradient-to: #14b8a6;
+    /* Primary Gradient Colors - Professional Blue/Purple */
+    --gradient-from: #2563eb;      /* Deep Blue */
+    --gradient-to: #6366f1;        /* Indigo */
 
     /* Accent Colors */
     --accent-blue: #3b82f6;
     --accent-purple: #8b5cf6;
+    --accent-cyan: #06b6d4;
 
     /* Semantic Colors */
-    --success: #10F295;
-    --warning: #FFB547;
-    --error: #FF5E5B;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
 
     /* Dark Mode */
     --dark-bg: #0A0A0B;
@@ -74,29 +75,29 @@
 
   .gradient-mesh {
     background:
-      radial-gradient(at 40% 20%, hsla(168, 86%, 36%, 1) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsla(174, 65%, 39%, 1) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, hsla(168, 86%, 36%, 0.3) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, hsla(174, 65%, 39%, 0.3) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, hsla(168, 86%, 36%, 0.5) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, hsla(174, 65%, 39%, 0.5) 0px, transparent 50%);
+      radial-gradient(at 40% 20%, hsla(221, 83%, 53%, 1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsla(239, 84%, 67%, 1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(221, 83%, 53%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsla(239, 84%, 67%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(221, 83%, 53%, 0.5) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsla(239, 84%, 67%, 0.5) 0px, transparent 50%);
   }
 
   .gradient-border {
     position: relative;
     background: linear-gradient(#fff, #fff) padding-box,
-                linear-gradient(135deg, #10b981 0%, #8b5cf6 100%) border-box;
+                linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%) border-box;
     border: 2px solid transparent;
     border-radius: 1rem;
   }
 
   .dark-mode .gradient-border {
     background: linear-gradient(#0A0A0B, #0A0A0B) padding-box,
-                linear-gradient(135deg, #10b981 0%, #8b5cf6 100%) border-box;
+                linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%) border-box;
   }
 
   .animated-gradient {
-    background: linear-gradient(-45deg, #10b981, #14b8a6, #3b82f6, #8b5cf6);
+    background: linear-gradient(-45deg, #2563eb, #3b82f6, #6366f1, #8b5cf6);
     background-size: 400% 400%;
     animation: gradient-flow 15s ease infinite;
   }
@@ -143,19 +144,19 @@
 
   .gradient-btn {
     @apply relative overflow-hidden text-white font-semibold px-6 py-3 rounded-xl;
-    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
     transition: all 0.3s ease;
   }
 
   .gradient-btn:hover {
-    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
     transform: translateY(-2px);
   }
 
   .gradient-btn::before {
     content: '';
     @apply absolute inset-0 opacity-0;
-    background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%);
     transition: opacity 0.3s ease;
   }
 
@@ -218,11 +219,11 @@
   @keyframes pulse-glow {
     0%, 100% {
       opacity: 1;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
     }
     50% {
       opacity: 0.7;
-      box-shadow: 0 0 40px rgba(16, 185, 129, 0.8);
+      box-shadow: 0 0 40px rgba(37, 99, 235, 0.8);
     }
   }
 
@@ -357,11 +358,11 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-emerald-500 rounded-full;
+    @apply bg-blue-600 rounded-full;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-emerald-600;
+    @apply bg-blue-700;
   }
 
   /* ============================================
@@ -370,15 +371,15 @@
 
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    background-image: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%);
   }
 
   .shadow-glow {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
   }
 
   .shadow-glow-lg {
-    box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 40px rgba(37, 99, 235, 0.4);
   }
 
   .backdrop-blur-safari {
@@ -476,7 +477,7 @@
   /* PWA Install Button */
   .pwa-install-btn {
     @apply fixed bottom-24 right-4 z-50 shadow-2xl;
-    @apply rounded-full p-4 bg-gradient-to-r from-emerald-500 to-teal-500;
+    @apply rounded-full p-4 bg-gradient-to-r from-blue-600 to-indigo-600;
     @apply text-white font-semibold;
     @apply transform transition-all duration-300;
     @apply hover:scale-110 active:scale-95;
@@ -505,18 +506,18 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(16, 185, 129, 0.3);
+    background: rgba(37, 99, 235, 0.3);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(16, 185, 129, 0.5);
+    background: rgba(37, 99, 235, 0.5);
   }
 
   /* Pull to Refresh Indicator */
   .ptr-indicator {
     @apply flex items-center justify-center py-4;
-    @apply text-emerald-500 font-semibold;
+    @apply text-blue-600 font-semibold;
   }
 
   /* Loading Skeleton for Mobile */
@@ -629,7 +630,7 @@
 
   .mobile-bottom-nav {
     background: rgba(17, 24, 39, 0.95);
-    border-top-color: rgba(16, 185, 129, 0.2);
+    border-top-color: rgba(37, 99, 235, 0.2);
   }
 }
 
@@ -663,26 +664,26 @@
 
 /* Gradient Button - Fixed Hover */
 .gradient-btn {
-  background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+  background: linear-gradient(135deg, #2563eb 0%, #6366f1 100%) !important;
   border: none !important;
   color: white !important;
   font-weight: 600 !important;
   padding: 0.75rem 1.5rem !important;
   border-radius: 0.75rem !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
 }
 
 .gradient-btn:hover {
-  background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
+  background: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%) !important;
   color: white !important;
   transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4) !important;
 }
 
 .gradient-btn:active {
   transform: translateY(0) scale(0.98) !important;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3) !important;
 }
 
 .gradient-btn .p-button-label {
@@ -691,13 +692,13 @@
 
 /* Fix PrimeVue Success Buttons */
 .p-button-success {
-  background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   border: none !important;
   color: white !important;
 }
 
 .p-button-success:hover {
-  background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
   color: white !important;
 }
 
@@ -771,13 +772,13 @@
 
 /* Action Buttons with Gradients */
 .action-btn-emerald {
-  background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   color: white !important;
   border: none !important;
 }
 
 .action-btn-emerald:hover {
-  background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
   color: white !important;
 }
 
@@ -835,13 +836,13 @@ button[class*="bg-gradient"] i {
 
 /* FileUpload button fix */
 .p-fileupload-choose {
-  background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%) !important;
+  background: linear-gradient(135deg, #2563eb 0%, #6366f1 100%) !important;
   border: none !important;
   color: white !important;
 }
 
 .p-fileupload-choose:hover {
-  background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
+  background: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%) !important;
   color: white !important;
 }
 

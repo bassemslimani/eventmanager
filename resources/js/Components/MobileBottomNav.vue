@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+
+const page = usePage();
 
 const route = (name: string) => {
     return window.route ? window.route(name) : `/${name}`;
@@ -13,6 +15,22 @@ const currentRoute = computed(() => {
 const isActive = (path: string) => {
     return currentRoute.value === path || currentRoute.value.startsWith(path);
 };
+
+const userRole = computed(() => {
+    return page.props.auth?.user?.role;
+});
+
+const canAccessAttendees = computed(() => {
+    return userRole.value === 'admin' || userRole.value === 'event_manager';
+});
+
+const canAccessBadges = computed(() => {
+    return userRole.value === 'admin' || userRole.value === 'event_manager';
+});
+
+const canAccessImport = computed(() => {
+    return userRole.value === 'admin' || userRole.value === 'event_manager';
+});
 </script>
 
 <template>
@@ -22,7 +40,8 @@ const isActive = (path: string) => {
             <span>Home</span>
         </Link>
 
-        <Link :href="route('attendees.index')" class="nav-item" :class="{ active: isActive('/attendees') }">
+        <!-- Admin & Event Manager only -->
+        <Link v-if="canAccessAttendees" :href="route('attendees.index')" class="nav-item" :class="{ active: isActive('/attendees') }">
             <i class="pi pi-users"></i>
             <span>Attendees</span>
         </Link>
@@ -34,14 +53,22 @@ const isActive = (path: string) => {
             <span>Scan</span>
         </Link>
 
-        <Link :href="route('badges.index')" class="nav-item" :class="{ active: isActive('/badges') }">
+        <!-- Admin & Event Manager only -->
+        <Link v-if="canAccessBadges" :href="route('badges.index')" class="nav-item" :class="{ active: isActive('/badges') }">
             <i class="pi pi-id-card"></i>
             <span>Badges</span>
         </Link>
 
-        <Link :href="route('import.index')" class="nav-item" :class="{ active: isActive('/import') }">
+        <!-- Admin & Event Manager only -->
+        <Link v-if="canAccessImport" :href="route('import.index')" class="nav-item" :class="{ active: isActive('/import') }">
             <i class="pi pi-upload"></i>
             <span>Import</span>
+        </Link>
+
+        <!-- Profile for agents (when other links are hidden) -->
+        <Link v-if="!canAccessAttendees" :href="route('profile.edit')" class="nav-item" :class="{ active: isActive('/profile') }">
+            <i class="pi pi-user"></i>
+            <span>Profile</span>
         </Link>
     </nav>
 </template>
@@ -55,7 +82,7 @@ const isActive = (path: string) => {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(16, 185, 129, 0.1);
+    border-top: 1px solid rgba(37, 99, 235, 0.1);
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -67,7 +94,7 @@ const isActive = (path: string) => {
 
 .dark .mobile-bottom-nav {
     background: rgba(17, 24, 39, 0.95);
-    border-top-color: rgba(16, 185, 129, 0.2);
+    border-top-color: rgba(37, 99, 235, 0.2);
 }
 
 .nav-item {
@@ -101,7 +128,7 @@ const isActive = (path: string) => {
 }
 
 .nav-item.active {
-    color: #10B981;
+    color: #2563eb;
 }
 
 .nav-item.active i {
@@ -122,11 +149,11 @@ const isActive = (path: string) => {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
     margin-bottom: 4px;
 }
 
@@ -137,7 +164,7 @@ const isActive = (path: string) => {
 }
 
 .scan-button.active .scan-icon-wrapper {
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.6);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
     transform: scale(1.05);
 }
 

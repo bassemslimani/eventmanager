@@ -28,6 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Event Badge Designer
         Route::get('events/{event}/badge-designer', [EventBadgeTemplateController::class, 'index'])->name('events.badge-designer.index');
         Route::get('events/{event}/badge-designer/create/{category}', [EventBadgeTemplateController::class, 'create'])->name('events.badge-designer.create');
+        Route::get('events/{event}/badge-designer/visual/{category}', [EventBadgeTemplateController::class, 'visual'])->name('events.badge-designer.visual');
+        Route::get('events/{event}/badge-designer/{badgeTemplate}/visual-edit', [EventBadgeTemplateController::class, 'visualEdit'])->name('events.badge-designer.visual-edit');
         Route::post('events/{event}/badge-designer', [EventBadgeTemplateController::class, 'store'])->name('events.badge-designer.store');
         Route::get('events/{event}/badge-designer/{badgeTemplate}/edit', [EventBadgeTemplateController::class, 'edit'])->name('events.badge-designer.edit');
         Route::put('events/{event}/badge-designer/{badgeTemplate}', [EventBadgeTemplateController::class, 'update'])->name('events.badge-designer.update');

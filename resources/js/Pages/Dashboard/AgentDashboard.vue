@@ -35,11 +35,11 @@ const goToManualCheckIn = () => {
     <Head title="Scanner Dashboard" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-4xl mx-auto">
                 <!-- Header -->
                 <div class="mb-8 text-center">
-                    <h1 class="text-4xl font-bold text-gradient mb-2">
+                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
                         Scanner Dashboard
                     </h1>
                     <p class="text-gray-600 dark:text-gray-400">
@@ -48,26 +48,21 @@ const goToManualCheckIn = () => {
                 </div>
 
                 <!-- Today's Stats -->
-                <Card class="glass-card mb-6">
-                    <template #content>
-                        <div class="text-center">
-                            <i class="pi pi-check-circle text-6xl text-emerald-500 mb-4"></i>
-                            <h3 class="text-5xl font-bold text-gradient mb-2">
-                                {{ todayCheckIns }}
-                            </h3>
-                            <p class="text-lg text-gray-600 dark:text-gray-400">
-                                Check-ins Today
-                            </p>
-                        </div>
-                    </template>
-                </Card>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+                    <div class="text-center">
+                        <i class="pi pi-check-circle text-6xl text-green-500 mb-4"></i>
+                        <h3 class="text-5xl font-bold text-gray-900 dark:text-white mb-2">
+                            {{ todayCheckIns }}
+                        </h3>
+                        <p class="text-lg text-gray-600 dark:text-gray-400">
+                            Check-ins Today
+                        </p>
+                    </div>
+                </div>
 
                 <!-- My Events -->
-                <Card v-if="myEvents.length > 0" class="glass-card mb-6">
-                    <template #header>
-                        <h3 class="text-xl font-bold p-4">My Events</h3>
-                    </template>
-                    <template #content>
+                <div v-if="myEvents.length > 0" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">My Events</h3>
                         <div class="space-y-3">
                             <div
                                 v-for="event in myEvents"
@@ -86,25 +81,22 @@ const goToManualCheckIn = () => {
                                             {{ event.location }}
                                         </p>
                                     </div>
-                                    <i class="pi pi-calendar-check text-3xl text-emerald-500"></i>
+                                    <i class="pi pi-calendar-check text-3xl text-blue-600"></i>
                                 </div>
                             </div>
                         </div>
-                    </template>
-                </Card>
+                </div>
 
                 <!-- No Events Warning -->
-                <Card v-else class="glass-card mb-6 border-2 border-yellow-500">
-                    <template #content>
-                        <div class="text-center">
-                            <i class="pi pi-exclamation-triangle text-5xl text-yellow-500 mb-3"></i>
-                            <h3 class="text-xl font-semibold mb-2">No Events Assigned</h3>
-                            <p class="text-gray-600 dark:text-gray-400">
-                                Please contact your Event Manager to be assigned to events.
-                            </p>
-                        </div>
-                    </template>
-                </Card>
+                <div v-else class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6 border-2 border-yellow-500">
+                    <div class="text-center">
+                        <i class="pi pi-exclamation-triangle text-5xl text-yellow-500 mb-3"></i>
+                        <h3 class="text-xl font-semibold mb-2">No Events Assigned</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Please contact your Event Manager to be assigned to events.
+                        </p>
+                    </div>
+                </div>
 
                 <!-- Quick Actions -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -114,7 +106,7 @@ const goToManualCheckIn = () => {
                         :disabled="myEvents.length === 0"
                         @click="goToScanner"
                     >
-                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <i class="pi pi-qrcode text-6xl relative z-10"></i>
                         <div class="text-center relative z-10">
                             <span class="font-bold text-xl block">QR Scanner</span>
@@ -138,17 +130,14 @@ const goToManualCheckIn = () => {
                 </div>
 
                 <!-- Instructions -->
-                <Card class="glass-card mt-6">
-                    <template #header>
-                        <h3 class="text-xl font-bold p-4">
-                            <i class="pi pi-info-circle mr-2"></i>
-                            Instructions
-                        </h3>
-                    </template>
-                    <template #content>
-                        <div class="space-y-3">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mt-6">
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+                        <i class="pi pi-info-circle mr-2"></i>
+                        Instructions
+                    </h3>
+                    <div class="space-y-3">
                             <div class="flex items-start gap-3">
-                                <div class="flex-shrink-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold">
+                                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
                                     1
                                 </div>
                                 <div>
@@ -182,9 +171,8 @@ const goToManualCheckIn = () => {
                                     </p>
                                 </div>
                             </div>
-                        </div>
-                    </template>
-                </Card>
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

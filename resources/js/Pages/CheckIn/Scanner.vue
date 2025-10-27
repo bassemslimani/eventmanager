@@ -99,69 +99,66 @@ onUnmounted(() => {
     <Head title="QR Code Scanner" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-4xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6 text-center">
-                    <h1 class="text-4xl font-bold text-gradient mb-2">QR Code Scanner</h1>
+                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">QR Code Scanner</h1>
                     <p class="text-gray-600 dark:text-gray-400">
                         Scan attendee badges to check them in
                     </p>
                 </div>
 
                 <!-- Scanner Card -->
-                <Card class="glass-card mb-6">
-                    <template #content>
-                        <div class="relative aspect-video bg-black rounded-lg overflow-hidden">
-                            <video
-                                ref="videoElement"
-                                class="w-full h-full object-cover"
-                            ></video>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+                    <div class="relative aspect-video bg-black rounded-lg overflow-hidden">
+                        <video
+                            ref="videoElement"
+                            class="w-full h-full object-cover"
+                        ></video>
 
-                            <!-- Scanning Overlay -->
-                            <div
-                                v-if="isScanning"
-                                class="absolute inset-0 flex items-center justify-center pointer-events-none"
-                            >
-                                <div class="w-64 h-64 border-4 border-emerald-500 rounded-lg animate-pulse"></div>
-                            </div>
+                        <!-- Scanning Overlay -->
+                        <div
+                            v-if="isScanning"
+                            class="absolute inset-0 flex items-center justify-center pointer-events-none"
+                        >
+                            <div class="w-64 h-64 border-4 border-blue-600 rounded-lg animate-pulse"></div>
                         </div>
+                    </div>
 
-                        <!-- Controls -->
-                        <div class="flex justify-center gap-4 mt-4">
-                            <Button
-                                v-if="!isScanning"
-                                label="Start Scanning"
-                                icon="pi pi-camera"
-                                class="gradient-btn"
-                                @click="startScanning"
-                            />
-                            <Button
-                                v-else
-                                label="Stop Scanning"
-                                icon="pi pi-stop"
-                                severity="danger"
-                                @click="stopScanning"
-                            />
-                        </div>
-                    </template>
-                </Card>
+                    <!-- Controls -->
+                    <div class="flex justify-center gap-4 mt-4">
+                        <Button
+                            v-if="!isScanning"
+                            label="Start Scanning"
+                            icon="pi pi-camera"
+                            class="gradient-btn"
+                            @click="startScanning"
+                        />
+                        <Button
+                            v-else
+                            label="Stop Scanning"
+                            icon="pi pi-stop"
+                            severity="danger"
+                            @click="stopScanning"
+                        />
+                    </div>
+                </div>
 
                 <!-- Scan Result -->
-                <Card
+                <div
                     v-if="scanResult"
                     :class="[
-                        'glass-card',
-                        scanResult.success ? 'border-emerald-500' : 'border-red-500',
+                        'bg-white dark:bg-gray-800 rounded-xl shadow-md p-6',
+                        scanResult.success ? 'border-green-500' : 'border-red-500',
                         'border-2'
                     ]"
                 >
-                    <template #content>
-                        <div class="text-center">
+                    <div class="text-center">
                             <i
                                 :class="[
                                     'pi text-6xl mb-4',
-                                    scanResult.success ? 'pi-check-circle text-emerald-500' : 'pi-times-circle text-red-500'
+                                    scanResult.success ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-500'
                                 ]"
                             ></i>
                             <h3 class="text-2xl font-bold mb-2">
@@ -187,9 +184,8 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </template>
-                </Card>
+                    </div>
+                </div>
 
                 <!-- Quick Actions -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -109,39 +109,36 @@ const downloadTemplate = () => {
     <Head title="Import Attendees" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-4xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
-                    <h1 class="text-4xl font-bold text-gradient mb-2">Import Attendees</h1>
+                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Import Attendees</h1>
                     <p class="text-gray-600 dark:text-gray-400">
                         Upload an Excel file to import multiple attendees
                     </p>
                 </div>
 
                 <!-- Template Download -->
-                <Card class="glass-card mb-6">
-                    <template #content>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-xl font-bold mb-2">Download Template</h3>
-                                <p class="text-gray-600 dark:text-gray-400">
-                                    Download the Excel template with sample data
-                                </p>
-                            </div>
-                            <Button
-                                label="Download Template"
-                                icon="pi pi-download"
-                                class="gradient-btn"
-                                @click="downloadTemplate"
-                            />
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Download Template</h3>
+                            <p class="text-gray-600 dark:text-gray-400">
+                                Download the Excel template with sample data
+                            </p>
                         </div>
-                    </template>
-                </Card>
+                        <Button
+                            label="Download Template"
+                            icon="pi pi-download"
+                            class="gradient-btn"
+                            @click="downloadTemplate"
+                        />
+                    </div>
+                </div>
 
                 <!-- Upload Form -->
-                <Card class="glass-card mb-6">
-                    <template #content>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
                         <div class="space-y-6">
                             <!-- Event Selection -->
                             <div v-if="events.length > 0">
@@ -190,22 +187,19 @@ const downloadTemplate = () => {
                             </div>
 
                             <!-- Result -->
-                            <Card v-if="importResult" class="mt-4 border-2" :class="importResult.success ? 'border-emerald-500' : 'border-red-500'">
-                                <template #content>
-                                    <div class="text-center">
-                                        <i :class="['pi text-4xl mb-2', importResult.success ? 'pi-check-circle text-emerald-500' : 'pi-times-circle text-red-500']"></i>
-                                        <p class="font-semibold">{{ importResult.message }}</p>
-                                        <div v-if="importResult.import_log" class="mt-4 text-sm text-left">
-                                            <p>Total Records: {{ importResult.import_log.total_records }}</p>
-                                            <p>Processed: {{ importResult.import_log.processed }}</p>
-                                            <p>Failed: {{ importResult.import_log.failed }}</p>
-                                        </div>
+                            <div v-if="importResult" class="mt-4 border-2 rounded-xl p-6" :class="importResult.success ? 'border-green-500' : 'border-red-500'">
+                                <div class="text-center">
+                                    <i :class="['pi text-4xl mb-2', importResult.success ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-500']"></i>
+                                    <p class="font-semibold">{{ importResult.message }}</p>
+                                    <div v-if="importResult.import_log" class="mt-4 text-sm text-left">
+                                        <p>Total Records: {{ importResult.import_log.total_records }}</p>
+                                        <p>Processed: {{ importResult.import_log.processed }}</p>
+                                        <p>Failed: {{ importResult.import_log.failed }}</p>
                                     </div>
-                                </template>
-                            </Card>
+                                </div>
+                            </div>
                         </div>
-                    </template>
-                </Card>
+                </div>
 
                 <!-- Quick Actions -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

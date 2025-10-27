@@ -159,7 +159,7 @@ const getCategoryLabel = () => {
 
                                 <template #content>
                                     <TabView>
-                                        <TabPanel header="Front Design">
+                                        <TabPanel header="Front Design" value="front">
                                             <div class="space-y-4">
                                                 <!-- Current Template -->
                                                 <div v-if="template.front_template && !frontPreview">
@@ -196,7 +196,7 @@ const getCategoryLabel = () => {
                                             </div>
                                         </TabPanel>
 
-                                        <TabPanel header="Back Design">
+                                        <TabPanel header="Back Design" value="back">
                                             <div class="space-y-4">
                                                 <!-- Current Template -->
                                                 <div v-if="template.back_template && !backPreview">

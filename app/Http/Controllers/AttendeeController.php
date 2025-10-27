@@ -14,13 +14,18 @@ class AttendeeController extends Controller
     {
         $query = Attendee::with('event');
 
+        // Filter by event
+        if ($request->has('event_id') && $request->event_id) {
+            $query->where('event_id', $request->event_id);
+        }
+
         // Filter by type
-        if ($request->has('type')) {
+        if ($request->has('type') && $request->type) {
             $query->where('type', $request->type);
         }
 
         // Search
-        if ($request->has('search')) {
+        if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -30,10 +35,12 @@ class AttendeeController extends Controller
         }
 
         $attendees = $query->latest()->paginate(20);
+        $events = Event::orderBy('name')->get();
 
         return Inertia::render('Attendees/Index', [
             'attendees' => $attendees,
-            'filters' => $request->only(['type', 'search']),
+            'events' => $events,
+            'filters' => $request->only(['type', 'search', 'event_id']),
         ]);
     }
 

@@ -47,16 +47,22 @@ class EventBadgeTemplateController extends Controller
 
     public function store(Request $request, Event $event)
     {
+        \Log::info('Badge template create request', [
+            'has_file' => $request->hasFile('front_template'),
+            'elements_type' => gettype($request->input('elements')),
+        ]);
+
         $validated = $request->validate([
             'category' => 'required|in:exhibitor,guest,organizer,vip',
             'front_template' => 'nullable|image|max:5120',
-            'back_template' => 'nullable|image|max:5120',
-            'front_layout' => 'nullable|array',
-            'back_layout' => 'nullable|array',
+            'elements' => 'nullable',  // Allow both string and array
             'terms_and_conditions' => 'nullable|string',
             'badge_size' => 'nullable|string',
             'badge_width' => 'nullable|integer|min:100|max:1000',
             'badge_height' => 'nullable|integer|min:100|max:1500',
+            'badge_width_cm' => 'nullable|numeric|min:5|max:15',
+            'badge_height_cm' => 'nullable|numeric|min:8|max:20',
+            'measurement_unit' => 'nullable|string',
             'font_family' => 'nullable|string',
             'primary_color' => 'nullable|string',
             'secondary_color' => 'nullable|string',
@@ -66,25 +72,21 @@ class EventBadgeTemplateController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        // Handle front template upload
+        // Handle template upload (single A4 template)
         if ($request->hasFile('front_template')) {
             $validated['front_template'] = $request->file('front_template')
                 ->store('badge-templates/' . $event->id, 'public');
         }
 
-        // Handle back template upload
-        if ($request->hasFile('back_template')) {
-            $validated['back_template'] = $request->file('back_template')
-                ->store('badge-templates/' . $event->id, 'public');
-        }
-
-        // Set default layout if not provided
-        if (!isset($validated['front_layout'])) {
-            $validated['front_layout'] = EventBadgeTemplate::getDefaultLayout();
-        }
-
-        if (!isset($validated['back_layout'])) {
-            $validated['back_layout'] = EventBadgeTemplate::getDefaultLayout();
+        // Ensure elements structure
+        if (isset($validated['elements'])) {
+            if (is_string($validated['elements'])) {
+                $validated['elements'] = json_decode($validated['elements'], true);
+            }
+            \Log::info('Decoded elements on create', ['elements' => $validated['elements']]);
+        } else {
+            // Set default elements if not provided
+            $validated['elements'] = EventBadgeTemplate::getDefaultElements();
         }
 
         $event->badgeTemplates()->create($validated);
@@ -103,15 +105,22 @@ class EventBadgeTemplateController extends Controller
 
     public function update(Request $request, Event $event, EventBadgeTemplate $badgeTemplate)
     {
+        // Log incoming request data for debugging
+        \Log::info('Badge template update request', [
+            'has_file' => $request->hasFile('front_template'),
+            'elements_type' => gettype($request->input('elements')),
+        ]);
+
         $validated = $request->validate([
             'front_template' => 'nullable|image|max:5120',
-            'back_template' => 'nullable|image|max:5120',
-            'front_layout' => 'nullable|array',
-            'back_layout' => 'nullable|array',
+            'elements' => 'nullable',  // Allow both string and array
             'terms_and_conditions' => 'nullable|string',
             'badge_size' => 'nullable|string',
             'badge_width' => 'nullable|integer|min:100|max:1000',
             'badge_height' => 'nullable|integer|min:100|max:1500',
+            'badge_width_cm' => 'nullable|numeric|min:5|max:15',
+            'badge_height_cm' => 'nullable|numeric|min:8|max:20',
+            'measurement_unit' => 'nullable|string',
             'font_family' => 'nullable|string',
             'primary_color' => 'nullable|string',
             'secondary_color' => 'nullable|string',
@@ -121,7 +130,7 @@ class EventBadgeTemplateController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        // Handle front template upload
+        // Handle template upload (single A4 template)
         if ($request->hasFile('front_template')) {
             // Delete old file
             if ($badgeTemplate->front_template) {
@@ -129,19 +138,23 @@ class EventBadgeTemplateController extends Controller
             }
             $validated['front_template'] = $request->file('front_template')
                 ->store('badge-templates/' . $event->id, 'public');
+        } else {
+            // IMPORTANT: Don't update front_template if no new file uploaded
+            // This preserves the existing template
+            unset($validated['front_template']);
         }
 
-        // Handle back template upload
-        if ($request->hasFile('back_template')) {
-            // Delete old file
-            if ($badgeTemplate->back_template) {
-                Storage::disk('public')->delete($badgeTemplate->back_template);
+        // Ensure elements structure
+        if (isset($validated['elements'])) {
+            if (is_string($validated['elements'])) {
+                $validated['elements'] = json_decode($validated['elements'], true);
             }
-            $validated['back_template'] = $request->file('back_template')
-                ->store('badge-templates/' . $event->id, 'public');
+            \Log::info('Decoded elements', ['elements' => $validated['elements']]);
         }
 
         $badgeTemplate->update($validated);
+
+        \Log::info('Badge template updated', ['id' => $badgeTemplate->id]);
 
         return redirect()->route('events.badge-designer.index', $event)
             ->with('success', 'Badge template updated successfully.');
@@ -149,12 +162,9 @@ class EventBadgeTemplateController extends Controller
 
     public function destroy(Event $event, EventBadgeTemplate $badgeTemplate)
     {
-        // Delete template files
+        // Delete template file
         if ($badgeTemplate->front_template) {
             Storage::disk('public')->delete($badgeTemplate->front_template);
-        }
-        if ($badgeTemplate->back_template) {
-            Storage::disk('public')->delete($badgeTemplate->back_template);
         }
 
         $badgeTemplate->delete();
@@ -167,8 +177,31 @@ class EventBadgeTemplateController extends Controller
     {
         return response()->json([
             'template' => $badgeTemplate,
-            'front_url' => $badgeTemplate->front_template ? Storage::url($badgeTemplate->front_template) : null,
-            'back_url' => $badgeTemplate->back_template ? Storage::url($badgeTemplate->back_template) : null,
+            'template_url' => $badgeTemplate->front_template ? Storage::url($badgeTemplate->front_template) : null,
+        ]);
+    }
+
+    /**
+     * Show visual drag-and-drop designer for creating a badge template
+     */
+    public function visual(Event $event, string $category): Response
+    {
+        return Inertia::render('Events/BadgeDesigner/Designer', [
+            'event' => $event,
+            'category' => $category,
+            'template' => null,
+        ]);
+    }
+
+    /**
+     * Show visual drag-and-drop designer for editing a badge template
+     */
+    public function visualEdit(Event $event, EventBadgeTemplate $badgeTemplate): Response
+    {
+        return Inertia::render('Events/BadgeDesigner/Designer', [
+            'event' => $event,
+            'category' => $badgeTemplate->category,
+            'template' => $badgeTemplate,
         ]);
     }
 }

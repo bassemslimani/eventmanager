@@ -134,7 +134,7 @@ const getCategoryLabel = () => {
 
                                 <template #content>
                                     <TabView>
-                                        <TabPanel header="Front Design">
+                                        <TabPanel header="Front Design" value="front">
                                             <div class="space-y-4">
                                                 <div>
                                                     <label class="block text-sm font-medium mb-2">
@@ -160,7 +160,7 @@ const getCategoryLabel = () => {
                                             </div>
                                         </TabPanel>
 
-                                        <TabPanel header="Back Design">
+                                        <TabPanel header="Back Design" value="back">
                                             <div class="space-y-4">
                                                 <div>
                                                     <label class="block text-sm font-medium mb-2">

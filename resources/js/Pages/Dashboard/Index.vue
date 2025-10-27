@@ -37,14 +37,14 @@ onMounted(() => {
                     props.stats.total_organizers
                 ],
                 backgroundColor: [
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(234, 179, 8, 0.8)'
+                    'rgba(37, 99, 235, 0.8)',    // Blue for Exhibitors
+                    'rgba(139, 92, 246, 0.8)',    // Purple for Guests
+                    'rgba(245, 158, 11, 0.8)'     // Amber for Organizers
                 ],
                 borderColor: [
-                    '#10B981',
-                    '#3B82F6',
-                    '#EAB308'
+                    '#2563eb',
+                    '#8b5cf6',
+                    '#f59e0b'
                 ],
                 borderWidth: 2
             }
@@ -67,11 +67,11 @@ onMounted(() => {
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
                 <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-gradient mb-2">
+                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
                         Welcome to QRMH
                     </h1>
                     <p class="text-gray-600 dark:text-gray-400">
@@ -79,129 +79,116 @@ onMounted(() => {
                     </p>
                 </div>
 
-                <!-- Bento Grid Stats -->
-                <div class="bento-grid mb-8">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     <!-- Total Attendees -->
-                    <Card class="bento-item glass-card hover:shadow-xl transition-all">
-                        <template #content>
-                            <div class="flex items-center justify-between p-2">
-                                <div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                        Total Attendees
-                                    </p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                                        {{ stats.total_attendees }}
-                                    </h3>
-                                </div>
-                                <div class="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full">
-                                    <i class="pi pi-users text-3xl text-emerald-600 dark:text-emerald-400"></i>
-                                </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                                    Total Attendees
+                                </p>
+                                <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                                    {{ stats.total_attendees }}
+                                </h3>
                             </div>
-                        </template>
-                    </Card>
+                            <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full">
+                                <i class="pi pi-users text-3xl text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Checked In Today -->
-                    <Card class="bento-item glass-card hover:shadow-xl transition-all">
-                        <template #content>
-                            <div class="flex items-center justify-between p-2">
-                                <div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                        Checked In Today
-                                    </p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                                        {{ stats.checked_in_today }}
-                                    </h3>
-                                </div>
-                                <div class="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full">
-                                    <i class="pi pi-check-circle text-3xl text-emerald-600 dark:text-emerald-400"></i>
-                                </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                                    Checked In Today
+                                </p>
+                                <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                                    {{ stats.checked_in_today }}
+                                </h3>
                             </div>
-                        </template>
-                    </Card>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-full">
+                                <i class="pi pi-check-circle text-3xl text-green-600 dark:text-green-400"></i>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Badges Generated -->
-                    <Card class="bento-item glass-card hover:shadow-xl transition-all">
-                        <template #content>
-                            <div class="flex items-center justify-between p-2">
-                                <div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                        Badges Generated
-                                    </p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                                        {{ stats.badges_generated }}
-                                    </h3>
-                                </div>
-                                <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full">
-                                    <i class="pi pi-id-card text-3xl text-blue-600 dark:text-blue-400"></i>
-                                </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                                    Badges Generated
+                                </p>
+                                <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                                    {{ stats.badges_generated }}
+                                </h3>
                             </div>
-                        </template>
-                    </Card>
+                            <div class="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-full">
+                                <i class="pi pi-id-card text-3xl text-amber-600 dark:text-amber-400"></i>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Active Events -->
-                    <Card class="bento-item glass-card hover:shadow-xl transition-all">
-                        <template #content>
-                            <div class="flex items-center justify-between p-2">
-                                <div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                        Active Events
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                                    Active Events
+                                </p>
+                                <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                                    {{ stats.active_events }}
+                                </h3>
+                            </div>
+                            <div class="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full">
+                                <i class="pi pi-calendar text-3xl text-purple-600 dark:text-purple-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Chart -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Attendee Distribution</h3>
+                        <div class="h-64">
+                            <Chart type="doughnut" :data="chartData" :options="chartOptions" />
+                        </div>
+                    </div>
+
+                    <!-- Recent Check-ins -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Recent Activity</h3>
+                        <div v-if="recentCheckIns.length > 0" class="space-y-3 max-h-64 overflow-y-auto">
+                            <div
+                                v-for="checkIn in recentCheckIns"
+                                :key="checkIn.id"
+                                class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700"
+                            >
+                                <i class="pi pi-check-circle text-green-500 mt-1"></i>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-sm text-gray-900 dark:text-white">{{ checkIn.attendee?.name || 'Unknown' }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ new Date(checkIn.scanned_at).toLocaleString() }}
                                     </p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                                        {{ stats.active_events }}
-                                    </h3>
-                                </div>
-                                <div class="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full">
-                                    <i class="pi pi-calendar text-3xl text-purple-600 dark:text-purple-400"></i>
                                 </div>
                             </div>
-                        </template>
-                    </Card>
-
-                    <!-- Chart - Wide -->
-                    <Card class="bento-item-wide glass-card">
-                        <template #header>
-                            <h3 class="text-xl font-bold p-4 text-gray-900 dark:text-white">Attendee Distribution</h3>
-                        </template>
-                        <template #content>
-                            <div class="h-64">
-                                <Chart type="doughnut" :data="chartData" :options="chartOptions" />
-                            </div>
-                        </template>
-                    </Card>
-
-                    <!-- Recent Check-ins - Tall -->
-                    <Card class="bento-item-tall glass-card">
-                        <template #header>
-                            <h3 class="text-xl font-bold p-4 text-gray-900 dark:text-white">Recent Activity</h3>
-                        </template>
-                        <template #content>
-                            <div v-if="recentCheckIns.length > 0" class="space-y-3">
-                                <div
-                                    v-for="checkIn in recentCheckIns"
-                                    :key="checkIn.id"
-                                    class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
-                                >
-                                    <i class="pi pi-check-circle text-emerald-500 mt-1"></i>
-                                    <div class="flex-1">
-                                        <p class="font-semibold text-sm">{{ checkIn.attendee?.name || 'Unknown' }}</p>
-                                        <p class="text-xs text-gray-500">
-                                            {{ new Date(checkIn.scanned_at).toLocaleString() }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-else class="text-center text-gray-500 py-8">
-                                <i class="pi pi-inbox text-4xl mb-2"></i>
-                                <p>No recent check-ins</p>
-                            </div>
-                        </template>
-                    </Card>
+                        </div>
+                        <div v-else class="text-center text-gray-500 py-12">
+                            <i class="pi pi-inbox text-4xl mb-2"></i>
+                            <p>No recent check-ins</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Quick Actions -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button
-                        class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 py-4 px-6"
+                        class="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 py-4 px-6"
                         @click="$inertia.visit('/check-in')"
                     >
                         <i class="pi pi-qrcode text-2xl"></i>
@@ -209,7 +196,7 @@ onMounted(() => {
                     </button>
 
                     <button
-                        class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 py-4 px-6"
+                        class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 py-4 px-6"
                         @click="$inertia.visit('/import')"
                     >
                         <i class="pi pi-upload text-2xl"></i>
@@ -217,7 +204,7 @@ onMounted(() => {
                     </button>
 
                     <button
-                        class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 py-4 px-6"
+                        class="bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 py-4 px-6"
                         @click="$inertia.visit('/badges')"
                     >
                         <i class="pi pi-id-card text-2xl"></i>

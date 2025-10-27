@@ -58,12 +58,12 @@ const getRoleSeverity = (role: string) => {
     <Head title="User Management" />
 
     <AuthenticatedLayout>
-        <div class="min-h-screen gradient-mesh p-6">
+        <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-gradient">User Management</h1>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">User Management</h1>
                         <p class="text-gray-600 dark:text-gray-400 mt-1">
                             Manage Event Managers and Agents for your events
                         </p>
@@ -77,7 +77,7 @@ const getRoleSeverity = (role: string) => {
                 </div>
 
                 <!-- No Events Warning -->
-                <Card v-if="events.length === 0" class="glass-card border-2 border-yellow-500">
+                <Card v-if="events.length === 0" class="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-yellow-500">
                     <template #content>
                         <div class="text-center py-8">
                             <i class="pi pi-exclamation-triangle text-6xl text-yellow-500 mb-4"></i>
@@ -94,7 +94,7 @@ const getRoleSeverity = (role: string) => {
                     <Card
                         v-for="event in events"
                         :key="event.id"
-                        class="glass-card"
+                        class="bg-white dark:bg-gray-800 rounded-xl shadow-md"
                     >
                         <template #header>
                             <div class="flex items-center justify-between p-4 border-b">

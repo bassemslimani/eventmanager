@@ -59,6 +59,14 @@ const deleteTemplate = (templateId: number) => {
         router.delete(`/events/${props.event.id}/badge-designer/${templateId}`);
     }
 };
+
+const openVisualDesigner = (category: string, templateId?: number) => {
+    if (templateId) {
+        router.visit(`/events/${props.event.id}/badge-designer/${templateId}/visual-edit`);
+    } else {
+        router.visit(`/events/${props.event.id}/badge-designer/visual/${category}`);
+    }
+};
 </script>
 
 <template>
@@ -87,15 +95,15 @@ const deleteTemplate = (templateId: number) => {
                 <Card class="glass-card mb-6">
                     <template #content>
                         <div class="flex items-start gap-4">
-                            <i class="pi pi-info-circle text-3xl text-blue-500"></i>
+                            <i class="pi pi-palette text-3xl text-purple-500"></i>
                             <div>
-                                <h3 class="font-bold text-lg mb-2">How Badge Designer Works</h3>
+                                <h3 class="font-bold text-lg mb-2">Professional Visual Badge Designer</h3>
                                 <ul class="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
-                                    <li>Create unique badge designs for each attendee category (Exhibitor, Guest, Organizer, VIP)</li>
-                                    <li>Upload front and back template images for your badges</li>
-                                    <li>Customize element positions, colors, fonts, and sizes</li>
-                                    <li>Add terms and conditions that will appear on the badge</li>
-                                    <li>Preview your designs before activation</li>
+                                    <li><strong>Upload A4 template:</strong> Add your ready-made badge design (8.5cm × 12.5cm)</li>
+                                    <li><strong>Drag & drop elements:</strong> Position attendee names, companies, QR codes, and logos precisely</li>
+                                    <li><strong>Real-time preview:</strong> See exactly how your badge will look when printed</li>
+                                    <li><strong>Professional controls:</strong> Adjust fonts, colors, alignment, and sizing with precision</li>
+                                    <li><strong>Category-specific designs:</strong> Create unique badges for Exhibitor, Guest, Organizer, and VIP</li>
                                 </ul>
                             </div>
                         </div>
@@ -128,39 +136,22 @@ const deleteTemplate = (templateId: number) => {
                         </template>
 
                         <template #content>
-                            <div class="space-y-4">
-                                <!-- Front Template Preview -->
+                            <div>
+                                <!-- Badge Preview -->
                                 <div>
-                                    <p class="text-sm font-medium mb-2">Front Design</p>
-                                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg h-48 flex items-center justify-center">
+                                    <p class="text-sm font-medium mb-2">Badge Preview</p>
+                                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg h-64 flex items-center justify-center">
                                         <Image
                                             v-if="template.front_template"
                                             :src="`/storage/${template.front_template}`"
-                                            alt="Front template"
+                                            alt="Badge template"
                                             class="w-full h-full object-contain"
                                             preview
                                         />
                                         <div v-else class="text-center text-gray-400">
                                             <i class="pi pi-image text-4xl mb-2"></i>
-                                            <p class="text-sm">No front design</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Back Template Preview -->
-                                <div>
-                                    <p class="text-sm font-medium mb-2">Back Design</p>
-                                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg h-48 flex items-center justify-center">
-                                        <Image
-                                            v-if="template.back_template"
-                                            :src="`/storage/${template.back_template}`"
-                                            alt="Back template"
-                                            class="w-full h-full object-contain"
-                                            preview
-                                        />
-                                        <div v-else class="text-center text-gray-400">
-                                            <i class="pi pi-image text-4xl mb-2"></i>
-                                            <p class="text-sm">No back design</p>
+                                            <p class="text-sm">No badge design yet</p>
+                                            <p class="text-xs mt-1">Click below to create one</p>
                                         </div>
                                     </div>
                                 </div>
@@ -168,28 +159,25 @@ const deleteTemplate = (templateId: number) => {
                         </template>
 
                         <template #footer>
-                            <div class="flex gap-2">
+                            <div class="space-y-2">
+                                <!-- Primary: Visual Designer Button -->
                                 <Button
-                                    v-if="!template.id"
-                                    label="Create"
-                                    icon="pi pi-plus"
-                                    class="gradient-btn flex-1"
-                                    @click="createTemplate(template.category)"
+                                    :label="template.id ? 'Open Visual Designer' : 'Create with Visual Designer'"
+                                    icon="pi pi-palette"
+                                    class="gradient-btn w-full"
+                                    @click="openVisualDesigner(template.category, template.id || undefined)"
                                 />
-                                <template v-else>
-                                    <Button
-                                        label="Edit"
-                                        icon="pi pi-pencil"
-                                        severity="info"
-                                        class="flex-1"
-                                        @click="editTemplate(template.id)"
-                                    />
-                                    <Button
-                                        icon="pi pi-trash"
-                                        severity="danger"
-                                        @click="deleteTemplate(template.id)"
-                                    />
-                                </template>
+
+                                <!-- Secondary: Delete Button for existing templates -->
+                                <Button
+                                    v-if="template.id"
+                                    label="Delete Template"
+                                    icon="pi pi-trash"
+                                    severity="danger"
+                                    outlined
+                                    class="w-full"
+                                    @click="deleteTemplate(template.id)"
+                                />
                             </div>
                         </template>
                     </Card>
