@@ -32,8 +32,11 @@ const form = useForm({
     back_template: null as File | null,
     terms_and_conditions: '',
     badge_size: 'standard',
-    badge_width: 400,
-    badge_height: 600,
+    badge_width: 400,  // Legacy px for backwards compatibility
+    badge_height: 600,  // Legacy px for backwards compatibility
+    badge_width_cm: 8.5,  // Standard badge width in cm
+    badge_height_cm: 12.5,  // Standard badge height in cm
+    measurement_unit: 'cm',
     font_family: 'Inter',
     primary_color: '#000000',
     secondary_color: '#666666',
@@ -251,6 +254,44 @@ const getCategoryLabel = () => {
                                                 <label class="block text-sm font-medium mb-2">Height (px)</label>
                                                 <InputNumber v-model="form.badge_height" :min="100" :max="1500" class="w-full" />
                                             </div>
+                                        </div>
+
+                                        <!-- Standard Badge Size in CM -->
+                                        <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-100">Professional Badge Size</h4>
+                                                <span class="text-xs text-blue-600 dark:text-blue-400">Industry Standard</span>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-xs font-medium mb-1 text-blue-700 dark:text-blue-300">Width (cm)</label>
+                                                    <InputNumber
+                                                        v-model="form.badge_width_cm"
+                                                        :minFractionDigits="1"
+                                                        :maxFractionDigits="1"
+                                                        :step="0.1"
+                                                        :min="5"
+                                                        :max="15"
+                                                        class="w-full"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-medium mb-1 text-blue-700 dark:text-blue-300">Height (cm)</label>
+                                                    <InputNumber
+                                                        v-model="form.badge_height_cm"
+                                                        :minFractionDigits="1"
+                                                        :maxFractionDigits="1"
+                                                        :step="0.1"
+                                                        :min="8"
+                                                        :max="20"
+                                                        class="w-full"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                                                <i class="pi pi-info-circle mr-1"></i>
+                                                Standard: 8.5cm × 12.5cm (Print-ready PDF format)
+                                            </p>
                                         </div>
                                     </div>
                                 </template>

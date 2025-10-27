@@ -29,6 +29,9 @@ interface BadgeTemplate {
     badge_size: string;
     badge_width: number;
     badge_height: number;
+    badge_width_cm?: number;
+    badge_height_cm?: number;
+    measurement_unit?: string;
     font_family: string;
     primary_color: string;
     secondary_color: string;
@@ -52,6 +55,9 @@ const form = useForm({
     badge_size: props.template.badge_size,
     badge_width: props.template.badge_width,
     badge_height: props.template.badge_height,
+    badge_width_cm: props.template.badge_width_cm ?? 8.5,
+    badge_height_cm: props.template.badge_height_cm ?? 12.5,
+    measurement_unit: props.template.measurement_unit ?? 'cm',
     font_family: props.template.font_family,
     primary_color: props.template.primary_color,
     secondary_color: props.template.secondary_color,
@@ -295,6 +301,44 @@ const getCategoryLabel = () => {
                                                 <label class="block text-sm font-medium mb-2">Height (px)</label>
                                                 <InputNumber v-model="form.badge_height" :min="100" :max="1500" class="w-full" />
                                             </div>
+                                        </div>
+
+                                        <!-- Standard Badge Size in CM -->
+                                        <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-100">Professional Badge Size</h4>
+                                                <span class="text-xs text-blue-600 dark:text-blue-400">Industry Standard</span>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-xs font-medium mb-1 text-blue-700 dark:text-blue-300">Width (cm)</label>
+                                                    <InputNumber
+                                                        v-model="form.badge_width_cm"
+                                                        :minFractionDigits="1"
+                                                        :maxFractionDigits="1"
+                                                        :step="0.1"
+                                                        :min="5"
+                                                        :max="15"
+                                                        class="w-full"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-medium mb-1 text-blue-700 dark:text-blue-300">Height (cm)</label>
+                                                    <InputNumber
+                                                        v-model="form.badge_height_cm"
+                                                        :minFractionDigits="1"
+                                                        :maxFractionDigits="1"
+                                                        :step="0.1"
+                                                        :min="8"
+                                                        :max="20"
+                                                        class="w-full"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                                                <i class="pi pi-info-circle mr-1"></i>
+                                                Standard: 8.5cm × 12.5cm (Print-ready PDF format)
+                                            </p>
                                         </div>
                                     </div>
                                 </template>
