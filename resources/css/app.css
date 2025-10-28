@@ -1219,3 +1219,173 @@ button:focus i {
     color: rgb(255, 255, 255) !important;
   }
 }
+
+/* ============================================
+   ABSOLUTE FINAL FIX - LOAD AFTER PRIMEVUE
+   Maximum specificity to override PrimeVue theme
+   ============================================ */
+
+/* Target ALL PrimeVue buttons - ALL states - ALL parts */
+.p-button:not(.p-button-text):not(.p-button-outlined),
+.p-button:not(.p-button-text):not(.p-button-outlined):hover,
+.p-button:not(.p-button-text):not(.p-button-outlined):active,
+.p-button:not(.p-button-text):not(.p-button-outlined):focus,
+.p-button:not(.p-button-text):not(.p-button-outlined):enabled {
+  color: #ffffff !important;
+}
+
+.p-button:not(.p-button-text):not(.p-button-outlined) .p-button-label,
+.p-button:not(.p-button-text):not(.p-button-outlined):hover .p-button-label,
+.p-button:not(.p-button-text):not(.p-button-outlined):active .p-button-label,
+.p-button:not(.p-button-text):not(.p-button-outlined):focus .p-button-label,
+.p-button:not(.p-button-text):not(.p-button-outlined) .p-button-icon,
+.p-button:not(.p-button-text):not(.p-button-outlined):hover .p-button-icon,
+.p-button:not(.p-button-text):not(.p-button-outlined):active .p-button-icon,
+.p-button:not(.p-button-text):not(.p-button-outlined):focus .p-button-icon,
+.p-button:not(.p-button-text):not(.p-button-outlined) span,
+.p-button:not(.p-button-text):not(.p-button-outlined):hover span,
+.p-button:not(.p-button-text):not(.p-button-outlined):active span,
+.p-button:not(.p-button-text):not(.p-button-outlined):focus span,
+.p-button:not(.p-button-text):not(.p-button-outlined) i,
+.p-button:not(.p-button-text):not(.p-button-outlined):hover i,
+.p-button:not(.p-button-text):not(.p-button-outlined):active i,
+.p-button:not(.p-button-text):not(.p-button-outlined):focus i {
+  color: #ffffff !important;
+}
+
+/* All severity buttons */
+.p-button-success,
+.p-button-success:hover,
+.p-button-success:active,
+.p-button-success:focus,
+.p-button-info,
+.p-button-info:hover,
+.p-button-info:active,
+.p-button-info:focus,
+.p-button-warning,
+.p-button-warning:hover,
+.p-button-warning:active,
+.p-button-warning:focus,
+.p-button-danger,
+.p-button-danger:hover,
+.p-button-danger:active,
+.p-button-danger:focus,
+.p-button-secondary,
+.p-button-secondary:hover,
+.p-button-secondary:active,
+.p-button-secondary:focus,
+.p-button-help,
+.p-button-help:hover,
+.p-button-help:active,
+.p-button-help:focus,
+.p-button-contrast,
+.p-button-contrast:hover,
+.p-button-contrast:active,
+.p-button-contrast:focus {
+  color: #ffffff !important;
+}
+
+.p-button-success *,
+.p-button-success:hover *,
+.p-button-success:active *,
+.p-button-success:focus *,
+.p-button-info *,
+.p-button-info:hover *,
+.p-button-info:active *,
+.p-button-info:focus *,
+.p-button-warning *,
+.p-button-warning:hover *,
+.p-button-warning:active *,
+.p-button-warning:focus *,
+.p-button-danger *,
+.p-button-danger:hover *,
+.p-button-danger:active *,
+.p-button-danger:focus *,
+.p-button-secondary *,
+.p-button-secondary:hover *,
+.p-button-secondary:active *,
+.p-button-secondary:focus *,
+.p-button-help *,
+.p-button-help:hover *,
+.p-button-help:active *,
+.p-button-help:focus *,
+.p-button-contrast *,
+.p-button-contrast:hover *,
+.p-button-contrast:active *,
+.p-button-contrast:focus * {
+  color: #ffffff !important;
+}
+
+/* Gradient buttons - all states */
+.gradient-btn,
+.gradient-btn:hover,
+.gradient-btn:active,
+.gradient-btn:focus,
+button.gradient-btn,
+button.gradient-btn:hover,
+button.gradient-btn:active,
+button.gradient-btn:focus,
+.p-button.gradient-btn,
+.p-button.gradient-btn:hover,
+.p-button.gradient-btn:active,
+.p-button.gradient-btn:focus {
+  color: #ffffff !important;
+  background: linear-gradient(to right, #2563eb, #4f46e5) !important;
+}
+
+.gradient-btn:hover,
+button.gradient-btn:hover,
+.p-button.gradient-btn:hover {
+  background: linear-gradient(to right, #1d4ed8, #4338ca) !important;
+}
+
+.gradient-btn *,
+.gradient-btn:hover *,
+.gradient-btn:active *,
+.gradient-btn:focus *,
+button.gradient-btn *,
+button.gradient-btn:hover *,
+button.gradient-btn:active *,
+button.gradient-btn:focus *,
+.p-button.gradient-btn *,
+.p-button.gradient-btn:hover *,
+.p-button.gradient-btn:active *,
+.p-button.gradient-btn:focus *,
+.gradient-btn .p-button-label,
+.gradient-btn:hover .p-button-label,
+.gradient-btn:active .p-button-label,
+.gradient-btn:focus .p-button-label,
+.gradient-btn .p-button-icon,
+.gradient-btn:hover .p-button-icon,
+.gradient-btn:active .p-button-icon,
+.gradient-btn:focus .p-button-icon {
+  color: #ffffff !important;
+}
+
+/* Nuclear option - target every possible selector combination */
+button[class*="gradient-btn"],
+button[class*="gradient-btn"]:hover,
+button[class*="gradient-btn"]:active,
+button[class*="gradient-btn"]:focus,
+button[class*="gradient-btn"] *,
+button[class*="gradient-btn"]:hover *,
+button[class*="gradient-btn"]:active *,
+button[class*="gradient-btn"]:focus *,
+button[class*="gradient-btn"] span,
+button[class*="gradient-btn"]:hover span,
+button[class*="gradient-btn"]:active span,
+button[class*="gradient-btn"]:focus span,
+button[class*="gradient-btn"] i,
+button[class*="gradient-btn"]:hover i,
+button[class*="gradient-btn"]:active i,
+button[class*="gradient-btn"]:focus i,
+button[class*="gradient-btn"] .p-button-label,
+button[class*="gradient-btn"]:hover .p-button-label,
+button[class*="gradient-btn"]:active .p-button-label,
+button[class*="gradient-btn"]:focus .p-button-label,
+button[class*="gradient-btn"] .p-button-icon,
+button[class*="gradient-btn"]:hover .p-button-icon,
+button[class*="gradient-btn"]:active .p-button-icon,
+button[class*="gradient-btn"]:focus .p-button-icon {
+  color: rgb(255, 255, 255) !important;
+}

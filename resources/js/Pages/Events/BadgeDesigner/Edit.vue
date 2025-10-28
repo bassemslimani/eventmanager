@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Card from 'primevue/card';
 import FileUpload from 'primevue/fileupload';
 import InputText from 'primevue/inputtext';
@@ -126,11 +126,10 @@ const getCategoryLabel = () => {
             <div class="max-w-6xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
-                    <Button
+                    <CustomButton
                         label="Back to Badge Designer"
-                        icon="pi pi-arrow-left"
+                        icon="pi-arrow-left"
                         severity="secondary"
-                        text
                         @click="router.visit(`/events/${event.id}/badge-designer`)"
                         class="mb-3"
                     />
@@ -425,14 +424,15 @@ const getCategoryLabel = () => {
 
                             <!-- Actions -->
                             <div class="flex flex-col gap-3">
-                                <Button
+                                <CustomButton
                                     label="Update Badge Template"
-                                    icon="pi pi-check"
-                                    class="gradient-btn w-full"
+                                    icon="pi-check"
+                                    severity="primary"
+                                    class="w-full"
                                     type="submit"
-                                    :loading="form.processing"
+                                    :disabled="form.processing"
                                 />
-                                <Button
+                                <CustomButton
                                     label="Cancel"
                                     severity="secondary"
                                     @click="router.visit(`/events/${event.id}/badge-designer`)"

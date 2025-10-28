@@ -1,4 +1,5 @@
 import '../css/app.css';
+import '../css/button-fix.css';
 import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/vue3';
@@ -132,10 +133,7 @@ createInertiaApp({
                     options: {
                         prefix: 'p',
                         darkModeSelector: '.dark-mode',
-                        cssLayer: {
-                            name: 'primevue',
-                            order: 'tailwind-base, primevue, tailwind-utilities'
-                        }
+                        cssLayer: false
                     }
                 },
                 ripple: true,
@@ -143,15 +141,22 @@ createInertiaApp({
                 pt: {
                     button: {
                         root: {
-                            class: 'force-white-text'
+                            class: 'force-white-text',
+                            style: 'color: rgb(255, 255, 255) !important;'
                         },
                         label: {
-                            class: 'force-white-text'
+                            class: 'force-white-text',
+                            style: 'color: rgb(255, 255, 255) !important;'
                         },
                         icon: {
-                            class: 'force-white-text'
+                            class: 'force-white-text',
+                            style: 'color: rgb(255, 255, 255) !important;'
                         }
                     }
+                },
+                ptOptions: {
+                    mergeProps: true,
+                    mergeSections: true
                 },
                 locale: {
                     startsWith: 'Starts with',
@@ -226,6 +231,26 @@ createInertiaApp({
         app.directive('tooltip', Tooltip);
 
         app.mount(el);
+
+        // Force white text on all buttons - JavaScript override
+        setTimeout(() => {
+            const style = document.createElement('style');
+            style.id = 'button-text-force-fix';
+            style.innerHTML = `
+                button.p-button:not(.p-button-text):not(.p-button-outlined),
+                button.p-button:not(.p-button-text):not(.p-button-outlined):hover,
+                button.p-button:not(.p-button-text):not(.p-button-outlined):active,
+                button.p-button:not(.p-button-text):not(.p-button-outlined):focus,
+                button.p-button:not(.p-button-text):not(.p-button-outlined) *,
+                button.p-button:not(.p-button-text):not(.p-button-outlined):hover *,
+                button.p-button:not(.p-button-text):not(.p-button-outlined):active *,
+                button.p-button:not(.p-button-text):not(.p-button-outlined):focus * {
+                    color: rgb(255, 255, 255) !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }, 100);
+
     },
     progress: {
         color: '#10b981',

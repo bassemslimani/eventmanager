@@ -5,7 +5,7 @@ import { ref } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Dropdown from 'primevue/dropdown';
 import Tag from 'primevue/tag';
 import Card from 'primevue/card';
@@ -88,10 +88,11 @@ const deleteAttendee = (id: number) => {
                 <!-- Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
                     <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Attendees</h1>
-                    <Button
+                    <CustomButton
                         label="Add Attendee"
-                        icon="pi pi-plus"
-                        class="gradient-btn w-full sm:w-auto"
+                        icon="pi-plus"
+                        severity="primary"
+                        class="w-full sm:w-auto"
                         @click="router.visit('/attendees/create')"
                     />
                 </div>
@@ -136,9 +137,9 @@ const deleteAttendee = (id: number) => {
                         </div>
 
                         <div class="flex items-end">
-                            <Button
+                            <CustomButton
                                 label="Clear Filters"
-                                icon="pi pi-filter-slash"
+                                icon="pi-filter-slash"
                                 severity="secondary"
                                 class="w-full"
                                 @click="filters = { event_id: null, type: null, search: '' }; searchAttendees()"
@@ -188,18 +189,17 @@ const deleteAttendee = (id: number) => {
                                 </div>
 
                                 <div class="flex gap-2 pt-2">
-                                    <Button
-                                        icon="pi pi-pencil"
+                                    <CustomButton
+                                        icon="pi-pencil"
                                         label="Edit"
                                         severity="info"
                                         class="flex-1"
                                         @click="router.visit(`/attendees/${attendee.id}/edit`)"
                                     />
-                                    <Button
-                                        icon="pi pi-trash"
+                                    <CustomButton
+                                        icon="pi-trash"
                                         label="Delete"
                                         severity="danger"
-                                        outlined
                                         class="flex-1"
                                         @click="deleteAttendee(attendee.id)"
                                     />
@@ -259,14 +259,14 @@ const deleteAttendee = (id: number) => {
                         <Column header="Actions" style="width: 150px">
                             <template #body="slotProps">
                                 <div class="flex gap-2">
-                                    <Button
-                                        icon="pi pi-pencil"
+                                    <CustomButton
+                                        icon="pi-pencil"
                                         severity="info"
                                         size="small"
                                         @click="router.visit(`/attendees/${slotProps.data.id}/edit`)"
                                     />
-                                    <Button
-                                        icon="pi pi-trash"
+                                    <CustomButton
+                                        icon="pi-trash"
                                         severity="danger"
                                         size="small"
                                         @click="deleteAttendee(slotProps.data.id)"

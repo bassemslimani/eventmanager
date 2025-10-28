@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Tag from 'primevue/tag';
 import Image from 'primevue/image';
 
@@ -55,10 +55,10 @@ const toggleActive = (id: number) => {
                             Manage badge designs and backgrounds
                         </p>
                     </div>
-                    <Button
+                    <CustomButton
                         label="Create Template"
-                        icon="pi pi-plus"
-                        class="gradient-btn"
+                        icon="pi-plus"
+                        severity="primary"
                         @click="router.visit('/badge-templates/create')"
                     />
                 </div>
@@ -108,20 +108,20 @@ const toggleActive = (id: number) => {
                         <Column header="Actions" style="width: 250px">
                             <template #body="slotProps">
                                 <div class="flex gap-2">
-                                    <Button
-                                        icon="pi pi-pencil"
+                                    <CustomButton
+                                        icon="pi-pencil"
                                         severity="info"
                                         size="small"
                                         @click="router.visit(`/badge-templates/${slotProps.data.id}/edit`)"
                                     />
-                                    <Button
-                                        :icon="slotProps.data.is_active ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                                    <CustomButton
+                                        :icon="slotProps.data.is_active ? 'pi-eye-slash' : 'pi-eye'"
                                         :severity="slotProps.data.is_active ? 'warning' : 'success'"
                                         size="small"
                                         @click="toggleActive(slotProps.data.id)"
                                     />
-                                    <Button
-                                        icon="pi pi-trash"
+                                    <CustomButton
+                                        icon="pi-trash"
                                         severity="danger"
                                         size="small"
                                         @click="deleteTemplate(slotProps.data.id)"

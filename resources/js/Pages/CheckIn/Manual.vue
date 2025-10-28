@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Card from 'primevue/card';
 import AutoComplete from 'primevue/autocomplete';
 import Message from 'primevue/message';
@@ -99,9 +99,8 @@ const submit = () => {
                 <!-- Header -->
                 <div class="mb-4 sm:mb-6">
                     <div class="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
-                        <Button
-                            icon="pi pi-arrow-left"
-                            text
+                        <CustomButton
+                            icon="pi-arrow-left"
                             size="large"
                             @click="router.visit('/check-in')"
                         />
@@ -203,14 +202,14 @@ const submit = () => {
 
                             <!-- Submit Button -->
                             <div class="flex justify-end pt-2">
-                                <Button
+                                <CustomButton
                                     type="submit"
                                     label="Check In"
-                                    icon="pi pi-check"
-                                    class="gradient-btn w-full sm:w-auto"
+                                    icon="pi-check"
+                                    severity="primary"
+                                    class="w-full sm:w-auto"
                                     size="large"
                                     :disabled="!selectedAttendee || form.processing"
-                                    :loading="form.processing"
                                 />
                             </div>
                         </form>

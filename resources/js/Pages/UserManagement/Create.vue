@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import Card from 'primevue/card';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Dropdown from 'primevue/dropdown';
@@ -60,11 +60,10 @@ const goBack = () => {
             <div class="max-w-3xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
-                    <Button
+                    <CustomButton
                         label="Back"
-                        icon="pi pi-arrow-left"
+                        icon="pi-arrow-left"
                         severity="secondary"
-                        text
                         @click="goBack"
                         class="mb-3"
                     />
@@ -187,18 +186,18 @@ const goBack = () => {
 
                             <!-- Submit Buttons -->
                             <div class="flex gap-3 pt-4 border-t">
-                                <Button
+                                <CustomButton
                                     type="submit"
                                     label="Create User"
-                                    icon="pi pi-check"
-                                    class="gradient-btn flex-1"
-                                    :loading="form.processing"
-                                    :disabled="events.length === 0"
+                                    icon="pi-check"
+                                    severity="primary"
+                                    class="flex-1"
+                                    :disabled="form.processing || events.length === 0"
                                 />
-                                <Button
+                                <CustomButton
                                     type="button"
                                     label="Cancel"
-                                    icon="pi pi-times"
+                                    icon="pi-times"
                                     severity="secondary"
                                     @click="goBack"
                                 />

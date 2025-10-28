@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Tag from 'primevue/tag';
 import Card from 'primevue/card';
 
@@ -57,10 +58,11 @@ const deleteEvent = (id: number) => {
                             Manage your events and conferences
                         </p>
                     </div>
-                    <Button
+                    <CustomButton
                         label="Create Event"
-                        icon="pi pi-plus"
-                        class="gradient-btn w-full sm:w-auto"
+                        icon="pi-plus"
+                        severity="primary"
+                        class="w-full sm:w-auto"
                         @click="router.visit('/events/create')"
                     />
                 </div>

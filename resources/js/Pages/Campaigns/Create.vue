@@ -146,29 +146,32 @@
                     <!-- Preview Recipients -->
                     <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
                         <div class="flex items-center justify-between">
-                            <div>
+                            <div class="flex-1">
                                 <h4 class="text-sm font-medium text-indigo-900">Recipient Preview</h4>
-                                <p v-if="recipientCount !== null" class="text-2xl font-bold text-indigo-600 mt-1">
-                                    {{ recipientCount }} recipients
+                                <p v-if="loading" class="text-sm text-indigo-700 mt-1">
+                                    <span class="inline-block animate-spin mr-2">⏳</span> Loading recipients...
                                 </p>
-                                <p v-else class="text-sm text-indigo-700 mt-1">Click to preview recipient count</p>
+                                <p v-else-if="recipientCount !== null" class="text-2xl font-bold text-indigo-600 mt-1">
+                                    {{ recipientCount }} recipient{{ recipientCount !== 1 ? 's' : '' }}
+                                </p>
+                                <p v-else class="text-sm text-indigo-700 mt-1">Calculating...</p>
                             </div>
                             <button
                                 type="button"
                                 @click="previewRecipients"
                                 :disabled="loading"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 whitespace-nowrap"
                             >
-                                {{ loading ? 'Loading...' : 'Preview Recipients' }}
+                                {{ loading ? 'Loading...' : 'Refresh Count' }}
                             </button>
                         </div>
 
                         <!-- Preview List -->
                         <div v-if="previewList.length > 0" class="mt-3 pt-3 border-t border-indigo-200">
-                            <p class="text-xs font-medium text-indigo-900 mb-2">First 10 recipients:</p>
-                            <div class="space-y-1">
+                            <p class="text-xs font-medium text-indigo-900 mb-2">Sample recipients (first 10):</p>
+                            <div class="space-y-1 max-h-48 overflow-y-auto">
                                 <div v-for="attendee in previewList" :key="attendee.id" class="text-xs text-indigo-700 bg-white px-2 py-1 rounded">
-                                    {{ attendee.name }} ({{ attendee.email }}) - {{ attendee.type }}
+                                    <strong>{{ attendee.name }}</strong> - {{ attendee.email }} ({{ attendee.type }})
                                 </div>
                             </div>
                         </div>
@@ -204,7 +207,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import axios from 'axios';
@@ -232,6 +235,11 @@ const previewList = ref([]);
 const loading = ref(false);
 const processing = ref(false);
 
+// Auto-load recipient count on mount
+onMounted(() => {
+    previewRecipients();
+});
+
 const handleFiles = (event) => {
     const files = Array.from(event.target.files);
 
@@ -258,9 +266,8 @@ const formatFileSize = (bytes) => {
 };
 
 const updatePreview = () => {
-    // Reset preview when filters change
-    recipientCount.value = null;
-    previewList.value = [];
+    // Auto-fetch new count when filters change
+    previewRecipients();
 };
 
 const previewRecipients = async () => {
@@ -285,13 +292,8 @@ const submit = () => {
         return;
     }
 
-    if (recipientCount.value === null) {
-        alert('Please preview recipients before creating the campaign');
-        return;
-    }
-
     if (recipientCount.value === 0) {
-        alert('Cannot create campaign with no recipients');
+        alert('Cannot create campaign with no recipients. Please adjust your filters.');
         return;
     }
 

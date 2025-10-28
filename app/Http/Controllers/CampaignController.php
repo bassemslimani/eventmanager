@@ -50,10 +50,18 @@ class CampaignController extends Controller
             'name' => 'required|string|max:255',
             'subject' => 'required|string|max:255',
             'body' => 'required|string',
-            'filters' => 'nullable|array',
+            'filters' => 'nullable',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|max:10240', // Max 10MB per file
         ]);
+
+        // Parse filters from JSON string if needed
+        $filters = [];
+        if (!empty($validated['filters'])) {
+            $filters = is_string($validated['filters'])
+                ? json_decode($validated['filters'], true)
+                : $validated['filters'];
+        }
 
         // Handle file uploads
         $attachmentPaths = [];
@@ -69,14 +77,14 @@ class CampaignController extends Controller
             'name' => $validated['name'],
             'subject' => $validated['subject'],
             'body' => $validated['body'],
-            'filters' => $validated['filters'] ?? [],
+            'filters' => $filters,
             'attachments' => $attachmentPaths,
             'created_by' => Auth::id(),
             'status' => 'draft',
         ]);
 
         // Get filtered attendees and create recipients
-        $attendees = $this->getFilteredAttendees($validated['filters'] ?? []);
+        $attendees = $this->getFilteredAttendees($filters);
 
         foreach ($attendees as $attendee) {
             CampaignRecipient::create([

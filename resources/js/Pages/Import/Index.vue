@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Card from 'primevue/card';
 import FileUpload from 'primevue/fileupload';
 import Dropdown from 'primevue/dropdown';
@@ -128,10 +128,10 @@ const downloadTemplate = () => {
                                 Download the Excel template with sample data
                             </p>
                         </div>
-                        <Button
+                        <CustomButton
                             label="Download Template"
-                            icon="pi pi-download"
-                            class="gradient-btn"
+                            icon="pi-download"
+                            severity="primary"
                             @click="downloadTemplate"
                         />
                     </div>
@@ -171,12 +171,12 @@ const downloadTemplate = () => {
                             </div>
 
                             <!-- Upload Button -->
-                            <Button
+                            <CustomButton
                                 label="Upload and Import"
-                                icon="pi pi-upload"
-                                class="gradient-btn w-full"
-                                :loading="isUploading || isProcessing"
-                                :disabled="!uploadedFile"
+                                icon="pi-upload"
+                                severity="primary"
+                                class="w-full"
+                                :disabled="!uploadedFile || isUploading || isProcessing"
                                 @click="uploadFile"
                             />
 

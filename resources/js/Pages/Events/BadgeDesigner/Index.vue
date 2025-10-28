@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
 import Image from 'primevue/image';
@@ -77,11 +78,10 @@ const openVisualDesigner = (category: string, templateId?: number) => {
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
-                    <Button
+                    <CustomButton
                         label="Back to Events"
-                        icon="pi pi-arrow-left"
+                        icon="pi-arrow-left"
                         severity="secondary"
-                        text
                         @click="router.visit('/events')"
                         class="mb-3"
                     />
@@ -161,20 +161,20 @@ const openVisualDesigner = (category: string, templateId?: number) => {
                         <template #footer>
                             <div class="space-y-2">
                                 <!-- Primary: Visual Designer Button -->
-                                <Button
+                                <CustomButton
                                     :label="template.id ? 'Open Visual Designer' : 'Create with Visual Designer'"
-                                    icon="pi pi-palette"
-                                    class="gradient-btn w-full"
+                                    icon="pi-palette"
+                                    severity="primary"
+                                    class="w-full"
                                     @click="openVisualDesigner(template.category, template.id || undefined)"
                                 />
 
                                 <!-- Secondary: Delete Button for existing templates -->
-                                <Button
+                                <CustomButton
                                     v-if="template.id"
                                     label="Delete Template"
-                                    icon="pi pi-trash"
+                                    icon="pi-trash"
                                     severity="danger"
-                                    outlined
                                     class="w-full"
                                     @click="deleteTemplate(template.id)"
                                 />

@@ -21,13 +21,9 @@
                             <button
                                 v-for="tab in tabs"
                                 :key="tab.id"
+                                type="button"
                                 @click="activeTab = tab.id"
-                                :class="[
-                                    activeTab === tab.id
-                                        ? 'border-indigo-500 text-indigo-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                                    'w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm'
-                                ]"
+                                :class="activeTab === tab.id ? 'tab-active' : 'tab-inactive'"
                             >
                                 {{ tab.name }}
                             </button>
@@ -141,6 +137,12 @@
                                 <label class="block text-sm font-medium text-gray-700">Favicon</label>
                                 <input type="file" @change="handleFaviconUpload" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
                                 <p class="mt-1 text-sm text-gray-500">Recommended size: 32x32px. Max 1MB.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">PWA Icon (Mobile App Icon)</label>
+                                <input type="file" @change="handlePwaIconUpload" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                                <p class="mt-1 text-sm text-gray-500">Recommended size: 192x192px. Max 2MB. Used for mobile home screen icon.</p>
                             </div>
                         </div>
 
@@ -266,7 +268,8 @@ const brandingForm = reactive({
     app_name: props.settings?.branding?.app_name || 'Creative Hub',
     brand_color: props.settings?.branding?.brand_color || '#4F46E5',
     app_logo: null,
-    app_favicon: null
+    app_favicon: null,
+    pwa_icon: null
 });
 
 const seoForm = reactive({
@@ -296,6 +299,7 @@ const updateBrandingSettings = () => {
     formData.append('brand_color', brandingForm.brand_color);
     if (brandingForm.app_logo) formData.append('app_logo', brandingForm.app_logo);
     if (brandingForm.app_favicon) formData.append('app_favicon', brandingForm.app_favicon);
+    if (brandingForm.pwa_icon) formData.append('pwa_icon', brandingForm.pwa_icon);
 
     router.post(route('settings.branding.update'), formData);
 };
@@ -323,6 +327,10 @@ const handleFaviconUpload = (event) => {
     brandingForm.app_favicon = event.target.files[0];
 };
 
+const handlePwaIconUpload = (event) => {
+    brandingForm.pwa_icon = event.target.files[0];
+};
+
 const handleSeoImageUpload = (event) => {
     seoForm.seo_image = event.target.files[0];
 };
@@ -338,3 +346,35 @@ const sendTestEmail = () => {
     testEmailAddress.value = '';
 };
 </script>
+
+<style scoped>
+.tab-active {
+    width: 25%;
+    padding: 1rem 0.25rem;
+    text-align: center;
+    border-bottom: 2px solid #4F46E5;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #4F46E5 !important;
+    background-color: #EEF2FF;
+    transition: all 0.2s;
+}
+
+.tab-inactive {
+    width: 25%;
+    padding: 1rem 0.25rem;
+    text-align: center;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #111827 !important;
+    background-color: white;
+    transition: all 0.2s;
+}
+
+.tab-inactive:hover {
+    color: #4F46E5 !important;
+    border-bottom-color: #D1D5DB;
+    background-color: #F9FAFB;
+}
+</style>

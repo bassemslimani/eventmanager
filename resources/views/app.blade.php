@@ -5,17 +5,33 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        @php
+            $appName = \App\Models\Setting::get('app_name', config('app.name', 'QRCH'));
+            $brandColor = \App\Models\Setting::get('brand_color', '#10b981');
+            $favicon = \App\Models\Setting::get('app_favicon');
+            $pwaIcon = \App\Models\Setting::get('pwa_icon');
+        @endphp
+
+        <title inertia>{{ $appName }}</title>
+
+        <!-- Favicon -->
+        @if($favicon)
+            <link rel="icon" type="image/x-icon" href="{{ asset('storage/' . $favicon) }}">
+        @endif
 
         <!-- PWA Meta Tags -->
-        <meta name="application-name" content="QRCH">
+        <meta name="application-name" content="{{ $appName }}">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="QRCH">
+        <meta name="apple-mobile-web-app-title" content="{{ $appName }}">
         <meta name="mobile-web-app-capable" content="yes">
-        <meta name="theme-color" content="#10b981">
+        <meta name="theme-color" content="{{ $brandColor }}">
         <link rel="manifest" href="/build/manifest.webmanifest">
-        <link rel="apple-touch-icon" href="/pwa-192x192.png">
+        @if($pwaIcon)
+            <link rel="apple-touch-icon" href="{{ asset('storage/' . $pwaIcon) }}">
+        @else
+            <link rel="apple-touch-icon" href="/pwa-192x192.png">
+        @endif
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

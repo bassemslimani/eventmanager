@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import InputText from 'primevue/inputtext';
 import Dropdown from 'primevue/dropdown';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 
 interface Event {
     id: number;
@@ -213,18 +213,18 @@ const submit = () => {
 
                     <!-- Actions -->
                     <div class="flex gap-3 justify-end">
-                        <Button
+                        <CustomButton
                             label="Cancel"
                             severity="secondary"
                             @click="$inertia.visit('/attendees')"
                             type="button"
                         />
-                        <Button
+                        <CustomButton
                             label="Update Attendee"
-                            icon="pi pi-check"
-                            class="gradient-btn"
+                            icon="pi-check"
+                            severity="primary"
                             type="submit"
-                            :loading="form.processing"
+                            :disabled="form.processing"
                         />
                     </div>
                 </form>

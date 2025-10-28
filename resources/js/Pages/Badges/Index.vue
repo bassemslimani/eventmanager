@@ -4,7 +4,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Dropdown from 'primevue/dropdown';
 import Tag from 'primevue/tag';
 import Checkbox from 'primevue/checkbox';
@@ -158,10 +158,11 @@ const isSelected = (attendee: Attendee) => {
                 <!-- Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
                     <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Badge Generation</h1>
-                    <Button
+                    <CustomButton
                         label="Generate Selected"
-                        icon="pi pi-id-card"
-                        class="gradient-btn w-full sm:w-auto"
+                        icon="pi-id-card"
+                        severity="primary"
+                        class="w-full sm:w-auto"
                         :disabled="selectedAttendees.length === 0"
                         @click="generateBulk"
                     />
@@ -210,9 +211,9 @@ const isSelected = (attendee: Attendee) => {
                         </div>
 
                         <div class="flex items-end">
-                            <Button
+                            <CustomButton
                                 label="Clear Filters"
-                                icon="pi pi-filter-slash"
+                                icon="pi-filter-slash"
                                 severity="secondary"
                                 class="w-full"
                                 @click="filters = { event_id: null, type: null, badge_status: null }; searchBadges()"
@@ -253,24 +254,24 @@ const isSelected = (attendee: Attendee) => {
                                 </div>
 
                                 <div class="flex gap-2">
-                                    <Button
+                                    <CustomButton
                                         v-if="!attendee.badge_generated_at"
-                                        icon="pi pi-plus"
+                                        icon="pi-plus"
                                         label="Generate"
                                         severity="success"
                                         class="flex-1"
                                         @click="generateSingle(attendee.id)"
                                     />
                                     <template v-else>
-                                        <Button
-                                            icon="pi pi-download"
+                                        <CustomButton
+                                            icon="pi-download"
                                             label="Download"
                                             severity="info"
                                             class="flex-1"
                                             @click="downloadBadge(attendee.id)"
                                         />
-                                        <Button
-                                            icon="pi pi-envelope"
+                                        <CustomButton
+                                            icon="pi-envelope"
                                             label="Email"
                                             severity="success"
                                             class="flex-1"
@@ -325,24 +326,24 @@ const isSelected = (attendee: Attendee) => {
                         <Column header="Actions" style="width: 280px">
                             <template #body="slotProps">
                                 <div class="flex gap-2">
-                                    <Button
+                                    <CustomButton
                                         v-if="!slotProps.data.badge_generated_at"
-                                        icon="pi pi-plus"
+                                        icon="pi-plus"
                                         label="Generate"
                                         severity="success"
                                         size="small"
                                         @click="generateSingle(slotProps.data.id)"
                                     />
                                     <template v-else>
-                                        <Button
-                                            icon="pi pi-download"
+                                        <CustomButton
+                                            icon="pi-download"
                                             label="Download"
                                             severity="info"
                                             size="small"
                                             @click="downloadBadge(slotProps.data.id)"
                                         />
-                                        <Button
-                                            icon="pi pi-envelope"
+                                        <CustomButton
+                                            icon="pi-envelope"
                                             label="Email"
                                             severity="success"
                                             size="small"

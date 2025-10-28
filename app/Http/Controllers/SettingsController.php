@@ -59,6 +59,7 @@ class SettingsController extends Controller
             'brand_color' => 'required|string',
             'app_logo' => 'nullable|image|max:2048',
             'app_favicon' => 'nullable|image|max:1024',
+            'pwa_icon' => 'nullable|image|max:2048',
         ]);
 
         // Handle logo upload
@@ -71,6 +72,12 @@ class SettingsController extends Controller
         if ($request->hasFile('app_favicon')) {
             $path = $request->file('app_favicon')->store('branding', 'public');
             Setting::set('app_favicon', $path, 'string', 'branding');
+        }
+
+        // Handle PWA icon upload
+        if ($request->hasFile('pwa_icon')) {
+            $path = $request->file('pwa_icon')->store('branding', 'public');
+            Setting::set('pwa_icon', $path, 'string', 'branding');
         }
 
         Setting::set('app_name', $validated['app_name'], 'string', 'branding');

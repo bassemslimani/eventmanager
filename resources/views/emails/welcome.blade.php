@@ -161,7 +161,7 @@
                 <strong>Event Information:</strong>
                 <p style="margin: 5px 0;">
                     <strong>Event:</strong> {{ $event->name }}<br>
-                    <strong>Date:</strong> {{ \Carbon\Carbon::parse($event->start_date)->format('F d, Y') }}
+                    <strong>Date:</strong> {{ $event->date->format('F d, Y') }}
                     @if($event->end_date)
                         - {{ \Carbon\Carbon::parse($event->end_date)->format('F d, Y') }}
                     @endif

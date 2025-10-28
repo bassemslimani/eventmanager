@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
 import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Card from 'primevue/card';
 import QrScanner from 'qr-scanner';
 
@@ -177,17 +178,18 @@ onUnmounted(() => {
 
                     <!-- Controls -->
                     <div class="flex justify-center gap-3 sm:gap-4 mt-4">
-                        <Button
+                        <CustomButton
                             v-if="!isScanning"
                             label="Start Scanning"
-                            icon="pi pi-camera"
-                            class="gradient-btn w-full sm:w-auto"
+                            icon="pi-camera"
+                            severity="primary"
+                            class="w-full sm:w-auto"
                             @click="startScanning"
                         />
-                        <Button
+                        <CustomButton
                             v-else
                             label="Stop Scanning"
-                            icon="pi pi-stop"
+                            icon="pi-stop"
                             severity="danger"
                             class="w-full sm:w-auto"
                             @click="stopScanning"
@@ -237,9 +239,9 @@ onUnmounted(() => {
 
                         <!-- Close Button -->
                         <div class="mt-6">
-                            <Button
+                            <CustomButton
                                 label="Continue Scanning"
-                                icon="pi pi-check"
+                                icon="pi-check"
                                 class="w-full"
                                 :severity="scanResult.success ? 'success' : 'secondary'"
                                 size="large"

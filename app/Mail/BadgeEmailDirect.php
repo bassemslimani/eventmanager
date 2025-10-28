@@ -3,26 +3,22 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Attendee;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
+use App\Services\BadgeService;
 use Illuminate\Support\Facades\Storage;
 
-class BadgeEmailDirect extends Mailable implements ShouldQueue
+class BadgeEmailDirect extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $attendee;
     public $event;
-    public $badgePdfPath;
+    private $badgePdfPath = null;
 
     /**
      * Create a new message instance.
@@ -31,46 +27,15 @@ class BadgeEmailDirect extends Mailable implements ShouldQueue
     {
         $this->attendee = $attendee;
         $this->event = $attendee->event;
-
-        // Generate badge PDF
-        $this->badgePdfPath = $this->generateBadgePDF($attendee);
     }
 
     /**
-     * Generate badge PDF for attachment
+     * Generate badge PDF for attachment using BadgeService
      */
     protected function generateBadgePDF($attendee)
     {
-        try {
-            // Generate QR code as SVG
-            $renderer = new ImageRenderer(
-                new RendererStyle(300),
-                new SvgImageBackEnd()
-            );
-            $writer = new Writer($renderer);
-            $qrCode = $writer->writeString($attendee->qr_uuid);
-
-            // Load event data
-            $event = $attendee->event;
-
-            // Generate PDF using DomPDF
-            $pdf = \PDF::loadView('pdfs.badge', [
-                'attendee' => $attendee,
-                'event' => $event,
-                'qrCode' => $qrCode,
-            ]);
-
-            // Save PDF to temporary storage
-            $fileName = 'badge_' . $attendee->id . '_' . time() . '.pdf';
-            $path = 'badges/temp/' . $fileName;
-
-            Storage::put($path, $pdf->output());
-
-            return $path;
-        } catch (\Exception $e) {
-            \Log::error("Failed to generate badge PDF: " . $e->getMessage());
-            return null;
-        }
+        $badgeService = new BadgeService();
+        return $badgeService->generateBadgePDF($attendee);
     }
 
     /**
@@ -100,8 +65,15 @@ class BadgeEmailDirect extends Mailable implements ShouldQueue
      */
     public function attachments(): array
     {
+        // Generate PDF at send time (not in constructor)
+        if ($this->badgePdfPath === null) {
+            \Log::info("Generating badge PDF at send time for attendee: {$this->attendee->id}");
+            $this->badgePdfPath = $this->generateBadgePDF($this->attendee);
+        }
+
         // If PDF was generated successfully, attach it
         if ($this->badgePdfPath && Storage::exists($this->badgePdfPath)) {
+            \Log::info("Attaching badge PDF: {$this->badgePdfPath}");
             return [
                 Attachment::fromStorage($this->badgePdfPath)
                     ->as($this->attendee->name . '_Badge.pdf')
@@ -109,6 +81,7 @@ class BadgeEmailDirect extends Mailable implements ShouldQueue
             ];
         }
 
+        \Log::error("No badge PDF to attach for attendee: {$this->attendee->id}");
         return [];
     }
 }

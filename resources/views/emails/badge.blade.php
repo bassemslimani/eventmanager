@@ -212,7 +212,7 @@
             <p class="greeting">Hello {{ $attendee->name }},</p>
 
             <p style="font-size: 16px; color: #4a5568;">
-                We're excited to have you join us! Your personalized event badge is attached to this email and ready to use.
+                Thank you for registering! Your personalized event badge is attached to this email. Please review the instructions below for check-in on the day of the event.
             </p>
 
             <div class="info-box">
@@ -224,10 +224,7 @@
                 <div class="info-item">
                     <span class="info-label">Date:</span>
                     <span class="info-value">
-                        {{ \Carbon\Carbon::parse($event->start_date)->format('F d, Y') }}
-                        @if($event->end_date && $event->start_date != $event->end_date)
-                            - {{ \Carbon\Carbon::parse($event->end_date)->format('F d, Y') }}
-                        @endif
+                        {{ $event->date->format('F d, Y') }}
                     </span>
                 </div>
                 <div class="info-item">
@@ -240,30 +237,21 @@
                 </div>
             </div>
 
-            @if(isset($badgePdfPath) && $badgePdfPath)
             <div class="highlight-box">
                 <strong>📎 Your Badge is Attached</strong>
                 <p style="margin: 10px 0 0 0; color: #065f46;">
                     File: <strong>{{ $attendee->name }}_Badge.pdf</strong>
                 </p>
             </div>
-            @else
-            <div class="highlight-box">
-                <strong>🎫 Access Your Badge</strong>
-                <p style="margin: 10px 0 0 0; color: #065f46;">
-                    Your personalized badge is ready to download from your event portal.
-                </p>
-            </div>
-            @endif
 
             <div class="reception-box">
-                <h3><span class="icon">🎯</span> IMPORTANT: Reception Instructions</h3>
+                <h3><span class="icon">🎯</span> IMPORTANT: Check-In Instructions</h3>
                 <ul>
-                    <li><strong>Print Your Badge:</strong> Download the attached PDF and print it on A4 paper (cardstock recommended for durability)</li>
-                    <li><strong>Present at Reception:</strong> Upon arrival, present your printed badge OR show this email with the badge PDF on your mobile device at the registration/reception desk</li>
-                    <li><strong>Badge Verification:</strong> Our reception staff will scan your QR code to verify your registration</li>
-                    <li><strong>Keep it Visible:</strong> Wear or display your badge throughout the event for easy identification and access</li>
-                    <li><strong>Lost Badge?:</strong> Visit the registration desk immediately for a replacement</li>
+                    <li><strong>Print Your Badge:</strong> Download and print the attached PDF on A4 paper (cardstock recommended for durability)</li>
+                    <li><strong>Arrive at the Event:</strong> Present your printed badge at the registration/reception desk upon arrival</li>
+                    <li><strong>Alternative:</strong> You may also show the badge PDF on your mobile device if printing is not possible</li>
+                    <li><strong>QR Code Verification:</strong> Reception staff will scan your QR code to verify your registration and grant access</li>
+                    <li><strong>Keep it Visible:</strong> Wear or display your badge throughout the event for identification and access to sessions</li>
                 </ul>
             </div>
 
@@ -273,14 +261,14 @@
             </div>
 
             <div class="contact-info">
-                <p style="margin: 0; color: #374151; font-weight: 600;">Need Help?</p>
+                <p style="margin: 0; color: #374151; font-weight: 600;">Need Assistance?</p>
                 <p style="margin: 8px 0 0 0; color: #6b7280;">
-                    If you have any questions or need assistance, please contact our support team.
+                    If you have any questions about your badge or event registration, please contact our support team before the event day.
                 </p>
             </div>
 
             <p style="font-size: 17px; font-weight: 600; color: #1a202c; margin-top: 30px;">
-                We look forward to welcoming you at {{ $event->name }}! 🎉
+                We look forward to seeing you at {{ $event->name }}!
             </p>
 
             <p style="color: #718096; margin-top: 20px;">

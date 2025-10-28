@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Calendar from 'primevue/calendar';
@@ -57,11 +58,10 @@ const submit = () => {
             <div class="max-w-4xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
-                    <Button
+                    <CustomButton
                         label="Back to Events"
-                        icon="pi pi-arrow-left"
+                        icon="pi-arrow-left"
                         severity="secondary"
-                        text
                         @click="router.visit('/events')"
                         class="mb-3"
                     />
@@ -196,17 +196,18 @@ const submit = () => {
 
                             <!-- Submit Buttons -->
                             <div class="flex gap-3 pt-4 border-t">
-                                <Button
+                                <CustomButton
                                     type="submit"
                                     label="Update Event"
-                                    icon="pi pi-check"
-                                    class="gradient-btn flex-1"
-                                    :loading="form.processing"
+                                    icon="pi-check"
+                                    severity="primary"
+                                    class="flex-1"
+                                    :disabled="form.processing"
                                 />
-                                <Button
+                                <CustomButton
                                     type="button"
                                     label="Cancel"
-                                    icon="pi pi-times"
+                                    icon="pi-times"
                                     severity="secondary"
                                     @click="router.visit('/events')"
                                 />

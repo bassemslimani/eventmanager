@@ -4,6 +4,7 @@ import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref, computed, watch, onMounted } from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import ColorPicker from 'primevue/colorpicker';
@@ -465,10 +466,8 @@ const save = () => {
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center gap-4">
-                        <Button
-                            icon="pi pi-arrow-left"
-                            text
-                            rounded
+                        <CustomButton
+                            icon="pi-arrow-left"
                             severity="secondary"
                             @click="router.visit(`/events/${event.id}/badge-designer`)"
                         />
@@ -480,17 +479,17 @@ const save = () => {
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <Button
+                        <CustomButton
                             label="Cancel"
                             severity="secondary"
                             @click="router.visit(`/events/${event.id}/badge-designer`)"
                         />
-                        <Button
+                        <CustomButton
                             label="Save Design"
-                            icon="pi pi-save"
-                            class="gradient-btn"
+                            icon="pi-save"
+                            severity="primary"
                             @click="save"
-                            :loading="form.processing"
+                            :disabled="form.processing"
                         />
                     </div>
                 </div>
@@ -509,10 +508,11 @@ const save = () => {
                             </template>
                             <template #content>
                                 <div class="space-y-3">
-                                    <Button
+                                    <CustomButton
                                         label="Upload A4 Template"
-                                        icon="pi pi-upload"
-                                        class="w-full gradient-btn"
+                                        icon="pi-upload"
+                                        severity="primary"
+                                        class="w-full"
                                         @click="() => (($refs.templateUpload as any)?.$el?.querySelector('input[type=file]') as HTMLInputElement)?.click()"
                                     />
                                     <FileUpload
@@ -526,9 +526,8 @@ const save = () => {
                                     />
                                     <div v-if="templatePreview" class="relative">
                                         <img :src="templatePreview" alt="Template" class="w-full rounded border shadow" />
-                                        <Button
-                                            icon="pi pi-times"
-                                            rounded
+                                        <CustomButton
+                                            icon="pi-times"
                                             severity="danger"
                                             size="small"
                                             class="absolute top-2 right-2"
@@ -552,23 +551,23 @@ const save = () => {
                             </template>
                             <template #content>
                                 <div class="space-y-2">
-                                    <Button
+                                    <CustomButton
                                         label="Add Text"
-                                        icon="pi pi-font"
+                                        icon="pi-font"
                                         class="w-full"
                                         severity="info"
                                         @click="addElement('text')"
                                     />
-                                    <Button
+                                    <CustomButton
                                         label="Add QR Code"
-                                        icon="pi pi-qrcode"
+                                        icon="pi-qrcode"
                                         class="w-full"
                                         severity="success"
                                         @click="addElement('qrcode')"
                                     />
-                                    <Button
+                                    <CustomButton
                                         label="Add Logo"
-                                        icon="pi pi-image"
+                                        icon="pi-image"
                                         class="w-full"
                                         severity="warning"
                                         @click="addElement('logo')"
@@ -648,8 +647,8 @@ const save = () => {
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-3 text-sm">
-                                        <Button
-                                            icon="pi pi-refresh"
+                                        <CustomButton
+                                            icon="pi-refresh"
                                             label="Reload QR"
                                             size="small"
                                             severity="secondary"
@@ -843,20 +842,20 @@ const save = () => {
                                         <div>
                                             <label class="text-sm font-medium">Alignment</label>
                                             <div class="flex gap-2 mt-1">
-                                                <Button
-                                                    icon="pi pi-align-left"
+                                                <CustomButton
+                                                    icon="pi-align-left"
                                                     :severity="(selectedElement as TextZone).align === 'left' ? 'primary' : 'secondary'"
                                                     @click="(selectedElement as TextZone).align = 'left'"
                                                     class="flex-1"
                                                 />
-                                                <Button
-                                                    icon="pi pi-align-center"
+                                                <CustomButton
+                                                    icon="pi-align-center"
                                                     :severity="(selectedElement as TextZone).align === 'center' ? 'primary' : 'secondary'"
                                                     @click="(selectedElement as TextZone).align = 'center'"
                                                     class="flex-1"
                                                 />
-                                                <Button
-                                                    icon="pi pi-align-right"
+                                                <CustomButton
+                                                    icon="pi-align-right"
                                                     :severity="(selectedElement as TextZone).align === 'right' ? 'primary' : 'secondary'"
                                                     @click="(selectedElement as TextZone).align = 'right'"
                                                     class="flex-1"
@@ -950,9 +949,9 @@ const save = () => {
 
                                     <Divider />
 
-                                    <Button
+                                    <CustomButton
                                         label="Delete Element"
-                                        icon="pi pi-trash"
+                                        icon="pi-trash"
                                         severity="danger"
                                         class="w-full"
                                         @click="deleteElement"

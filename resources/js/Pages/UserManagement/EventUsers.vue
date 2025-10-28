@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import Card from 'primevue/card';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Tag from 'primevue/tag';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -46,11 +46,10 @@ const removeUser = (userId: number) => {
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
                 <div class="mb-6">
-                    <Button
+                    <CustomButton
                         label="Back to User Management"
-                        icon="pi pi-arrow-left"
+                        icon="pi-arrow-left"
                         severity="secondary"
-                        text
                         @click="router.visit(userRole === 'admin' ? '/users' : '/event-users')"
                         class="mb-3"
                     />
@@ -82,8 +81,8 @@ const removeUser = (userId: number) => {
                                 <Column field="email" header="Email" />
                                 <Column header="Actions" style="width: 100px">
                                     <template #body="slotProps">
-                                        <Button
-                                            icon="pi pi-trash"
+                                        <CustomButton
+                                            icon="pi-trash"
                                             severity="danger"
                                             size="small"
                                             @click="removeUser(slotProps.data.id)"
@@ -119,8 +118,8 @@ const removeUser = (userId: number) => {
                                 <Column field="email" header="Email" />
                                 <Column header="Actions" style="width: 100px">
                                     <template #body="slotProps">
-                                        <Button
-                                            icon="pi pi-trash"
+                                        <CustomButton
+                                            icon="pi-trash"
                                             severity="danger"
                                             size="small"
                                             @click="removeUser(slotProps.data.id)"
@@ -143,10 +142,10 @@ const removeUser = (userId: number) => {
                             <p class="text-gray-600 dark:text-gray-400 mb-4">
                                 Need to add more users to this event?
                             </p>
-                            <Button
+                            <CustomButton
                                 label="Create New User"
-                                icon="pi pi-user-plus"
-                                class="gradient-btn"
+                                icon="pi-user-plus"
+                                severity="primary"
                                 @click="router.visit(userRole === 'admin' ? '/users/create' : '/event-users/create')"
                             />
                         </template>

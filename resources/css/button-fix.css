@@ -1,0 +1,131 @@
+/* ============================================
+   ABSOLUTE FINAL BUTTON TEXT FIX
+   This loads AFTER everything else
+   ============================================ */
+
+/* Every possible button selector with maximum specificity */
+button.p-button.gradient-btn,
+button.p-button.gradient-btn:hover,
+button.p-button.gradient-btn:active,
+button.p-button.gradient-btn:focus,
+button.p-button.gradient-btn:enabled,
+button.p-button.p-component.gradient-btn,
+button.p-button.p-component.gradient-btn:hover,
+button.p-button.p-component.gradient-btn:active,
+button.p-button.p-component.gradient-btn:focus,
+button.p-button.p-component.gradient-btn:enabled,
+button[class*="gradient-btn"].p-button,
+button[class*="gradient-btn"].p-button:hover,
+button[class*="gradient-btn"].p-button:active,
+button[class*="gradient-btn"].p-button:focus,
+button[class*="gradient-btn"].p-button:enabled {
+  color: #ffffff !important;
+  background: linear-gradient(to right, #2563eb, #4f46e5) !important;
+  border: none !important;
+}
+
+/* Hover state with darker gradient */
+button.p-button.gradient-btn:hover:enabled,
+button.p-button.p-component.gradient-btn:hover:enabled,
+button[class*="gradient-btn"].p-button:hover:enabled {
+  background: linear-gradient(to right, #1d4ed8, #4338ca) !important;
+  color: #ffffff !important;
+}
+
+/* ALL child elements must be white */
+button.p-button.gradient-btn *,
+button.p-button.gradient-btn:hover *,
+button.p-button.gradient-btn:active *,
+button.p-button.gradient-btn:focus *,
+button.p-button.gradient-btn:enabled *,
+button.p-button.p-component.gradient-btn *,
+button.p-button.p-component.gradient-btn:hover *,
+button.p-button.p-component.gradient-btn:active *,
+button.p-button.p-component.gradient-btn:focus *,
+button.p-button.p-component.gradient-btn:enabled *,
+button[class*="gradient-btn"].p-button *,
+button[class*="gradient-btn"].p-button:hover *,
+button[class*="gradient-btn"].p-button:active *,
+button[class*="gradient-btn"].p-button:focus *,
+button[class*="gradient-btn"].p-button:enabled * {
+  color: rgb(255, 255, 255) !important;
+}
+
+/* Target specific button parts */
+button.p-button.gradient-btn .p-button-label,
+button.p-button.gradient-btn:hover .p-button-label,
+button.p-button.gradient-btn:active .p-button-label,
+button.p-button.gradient-btn:focus .p-button-label,
+button.p-button.gradient-btn:enabled .p-button-label,
+button.p-button.gradient-btn .p-button-icon,
+button.p-button.gradient-btn:hover .p-button-icon,
+button.p-button.gradient-btn:active .p-button-icon,
+button.p-button.gradient-btn:focus .p-button-icon,
+button.p-button.gradient-btn:enabled .p-button-icon,
+button.p-button.p-component.gradient-btn .p-button-label,
+button.p-button.p-component.gradient-btn:hover .p-button-label,
+button.p-button.p-component.gradient-btn:active .p-button-label,
+button.p-button.p-component.gradient-btn:focus .p-button-label,
+button.p-button.p-component.gradient-btn:enabled .p-button-label,
+button.p-button.p-component.gradient-btn .p-button-icon,
+button.p-button.p-component.gradient-btn:hover .p-button-icon,
+button.p-button.p-component.gradient-btn:active .p-button-icon,
+button.p-button.p-component.gradient-btn:focus .p-button-icon,
+button.p-button.p-component.gradient-btn:enabled .p-button-icon {
+  color: rgb(255, 255, 255) !important;
+}
+
+/* Target spans and icons specifically */
+button.p-button.gradient-btn span,
+button.p-button.gradient-btn:hover span,
+button.p-button.gradient-btn:active span,
+button.p-button.gradient-btn:focus span,
+button.p-button.gradient-btn:enabled span,
+button.p-button.gradient-btn i,
+button.p-button.gradient-btn:hover i,
+button.p-button.gradient-btn:active i,
+button.p-button.gradient-btn:focus i,
+button.p-button.gradient-btn:enabled i,
+button.p-button.p-component.gradient-btn span,
+button.p-button.p-component.gradient-btn:hover span,
+button.p-button.p-component.gradient-btn:active span,
+button.p-button.p-component.gradient-btn:focus span,
+button.p-button.p-component.gradient-btn:enabled span,
+button.p-button.p-component.gradient-btn i,
+button.p-button.p-component.gradient-btn:hover i,
+button.p-button.p-component.gradient-btn:active i,
+button.p-button.p-component.gradient-btn:focus i,
+button.p-button.p-component.gradient-btn:enabled i {
+  color: rgb(255, 255, 255) !important;
+}
+
+/* Force white text class - ultra specific */
+.force-white-text,
+.force-white-text:hover,
+.force-white-text:active,
+.force-white-text:focus,
+span.force-white-text,
+span.force-white-text:hover,
+span.force-white-text:active,
+span.force-white-text:focus,
+i.force-white-text,
+i.force-white-text:hover,
+i.force-white-text:active,
+i.force-white-text:focus,
+button .force-white-text,
+button:hover .force-white-text,
+button:active .force-white-text,
+button:focus .force-white-text {
+  color: rgb(255, 255, 255) !important;
+}
+
+/* Override ANY PrimeVue theme color variable */
+button.p-button.gradient-btn,
+button.p-button.gradient-btn:hover,
+button.p-button.p-component.gradient-btn,
+button.p-button.p-component.gradient-btn:hover {
+  --p-button-label-color: #ffffff !important;
+  --p-button-icon-color: #ffffff !important;
+  --p-button-color: #ffffff !important;
+  --p-primary-color: #ffffff !important;
+}

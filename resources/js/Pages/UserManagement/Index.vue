@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import Card from 'primevue/card';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Tag from 'primevue/tag';
@@ -68,10 +68,10 @@ const getRoleSeverity = (role: string) => {
                             Manage Event Managers and Agents for your events
                         </p>
                     </div>
-                    <Button
+                    <CustomButton
                         label="Add New User"
-                        icon="pi pi-user-plus"
-                        class="gradient-btn"
+                        icon="pi-user-plus"
+                        severity="primary"
                         @click="goToCreateUser"
                     />
                 </div>
@@ -106,9 +106,9 @@ const getRoleSeverity = (role: string) => {
                                         class="mt-2"
                                     />
                                 </div>
-                                <Button
+                                <CustomButton
                                     label="View All Users"
-                                    icon="pi pi-eye"
+                                    icon="pi-eye"
                                     severity="info"
                                     @click="viewEventUsers(event.id)"
                                 />

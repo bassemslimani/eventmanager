@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import Button from 'primevue/button';
+import CustomButton from '@/Components/CustomButton.vue';
 import Card from 'primevue/card';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -125,9 +125,8 @@ const eventOptions = computed(() => {
                 <!-- Header -->
                 <div class="mb-4 sm:mb-6">
                     <div class="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
-                        <Button
-                            icon="pi pi-arrow-left"
-                            text
+                        <CustomButton
+                            icon="pi-arrow-left"
                             size="large"
                             @click="router.visit('/check-in')"
                         />
@@ -171,17 +170,17 @@ const eventOptions = computed(() => {
                             </div>
 
                             <div class="flex gap-2">
-                                <Button
+                                <CustomButton
                                     label="Apply"
-                                    icon="pi pi-filter"
-                                    class="gradient-btn flex-1 sm:flex-none"
+                                    icon="pi-filter"
+                                    severity="primary"
+                                    class="flex-1 sm:flex-none"
                                     @click="applyFilters"
                                 />
-                                <Button
+                                <CustomButton
                                     label="Clear"
-                                    icon="pi pi-times"
+                                    icon="pi-times"
                                     severity="secondary"
-                                    outlined
                                     class="flex-1 sm:flex-none"
                                     @click="clearFilters"
                                 />
@@ -329,13 +328,12 @@ const eventOptions = computed(() => {
 
                 <!-- Pagination -->
                 <div v-if="checkIns.last_page > 1" class="flex flex-wrap justify-center mt-4 sm:mt-6 gap-1 sm:gap-2">
-                    <Button
+                    <CustomButton
                         v-for="link in checkIns.links"
                         :key="link.label"
                         :label="link.label.replace('&laquo;', '«').replace('&raquo;', '»')"
                         :disabled="!link.url || link.active"
                         :severity="link.active ? 'primary' : 'secondary'"
-                        :outlined="!link.active"
                         size="small"
                         class="min-w-[2.5rem]"
                         @click="goToPage(link.url)"
