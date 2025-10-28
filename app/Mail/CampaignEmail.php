@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 use App\Models\EmailCampaign;
@@ -18,6 +19,7 @@ class CampaignEmail extends Mailable implements ShouldQueue
 
     public $campaign;
     public $attendee;
+    public $event;
     public $campaignAttachments;
 
     /**
@@ -27,6 +29,7 @@ class CampaignEmail extends Mailable implements ShouldQueue
     {
         $this->campaign = $campaign;
         $this->attendee = $attendee;
+        $this->event = $attendee->event; // Load the event for the logo
         $this->campaignAttachments = $campaign->attachments ?? [];
     }
 
@@ -36,6 +39,10 @@ class CampaignEmail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address(
+                \App\Models\Setting::get('mail_from_address', config('mail.from.address')),
+                \App\Models\Setting::get('mail_from_name', config('mail.from.name'))
+            ),
             subject: $this->campaign->subject,
         );
     }

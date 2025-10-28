@@ -46,7 +46,19 @@ const statusOptions = [
 ];
 
 const submit = () => {
-    form.put(`/events/${props.event.id}`);
+    // Format the date to YYYY-MM-DD string before submitting (timezone-safe)
+    let formattedDate = form.date;
+    if (form.date instanceof Date) {
+        const year = form.date.getFullYear();
+        const month = String(form.date.getMonth() + 1).padStart(2, '0');
+        const day = String(form.date.getDate()).padStart(2, '0');
+        formattedDate = `${year}-${month}-${day}`;
+    }
+
+    form.transform((data) => ({
+        ...data,
+        date: formattedDate,
+    })).put(`/events/${props.event.id}`);
 };
 </script>
 

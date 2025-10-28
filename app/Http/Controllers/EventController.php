@@ -85,6 +85,14 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
+        // Log incoming request data for debugging
+        \Log::info('Event update request data:', [
+            'event_id' => $event->id,
+            'old_date' => $event->date,
+            'new_date' => $request->input('date'),
+            'all_data' => $request->except('logo')
+        ]);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'name_ar' => 'nullable|string|max:255',
@@ -97,6 +105,8 @@ class EventController extends Controller
             'status' => 'required|in:draft,active,completed,cancelled',
         ]);
 
+        \Log::info('Event update validated data:', $validated);
+
         // Handle logo upload
         if ($request->hasFile('logo')) {
             // Delete old logo
@@ -107,6 +117,11 @@ class EventController extends Controller
         }
 
         $event->update($validated);
+
+        \Log::info('Event after update:', [
+            'event_id' => $event->id,
+            'updated_date' => $event->date,
+        ]);
 
         return redirect()->route('events.index')
             ->with('success', 'Event updated successfully.');

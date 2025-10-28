@@ -56,8 +56,8 @@
 <body>
     <div class="container">
         <div class="header">
-            @if(config('app.logo'))
-                <img src="{{ config('app.logo') }}" alt="Logo" class="logo">
+            @if($event && $event->logo)
+                <img src="{{ asset('storage/' . $event->logo) }}" alt="{{ $event->name }}" class="logo">
             @endif
             <h1>{{ $campaign->name }}</h1>
         </div>
