@@ -70,7 +70,11 @@
 </head>
 <body>
     <div class="badge-container">
-        @if($template->front_template)
+        @if($compressedTemplate)
+        <div class="badge-background">
+            <img src="{{ $compressedTemplate }}" alt="Badge Background">
+        </div>
+        @elseif($template->front_template)
         <div class="badge-background">
             <img src="{{ public_path('storage/' . $template->front_template) }}" alt="Badge Background">
         </div>
@@ -105,6 +109,9 @@
                                 $fieldValue = $attendee->email ?? '';
                             } elseif ($field === 'attendee.phone') {
                                 $fieldValue = $attendee->phone ?? '';
+                            } elseif ($field === 'attendee.role') {
+                                $fieldValue = $attendee->role ?? '';
+                                \Log::info("Processing attendee.role field for attendee {$attendee->id}: role value = '{$attendee->role}', fieldValue = '{$fieldValue}'");
                             }
                         }
 
@@ -162,14 +169,18 @@
                             <img src="{{ $qrCode }}" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
 
-                    @elseif($elem['type'] === 'logo' && $event->logo)
+                    @elseif($elem['type'] === 'logo')
                         <div class="element logo-element" style="
                             left: {{ $leftPos }}cm;
                             top: {{ $topPos }}cm;
                             width: {{ $width }}cm;
                             height: {{ $height }}cm;
                         ">
-                            <img src="{{ public_path('storage/' . $event->logo) }}" alt="Event Logo">
+                            @if($compressedLogo)
+                                <img src="{{ $compressedLogo }}" alt="Event Logo">
+                            @elseif($event->logo)
+                                <img src="{{ public_path('storage/' . $event->logo) }}" alt="Event Logo">
+                            @endif
                         </div>
                     @endif
                 @endif

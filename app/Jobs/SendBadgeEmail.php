@@ -13,7 +13,7 @@ class SendBadgeEmail implements ShouldQueue
 {
     use Queueable;
 
-    public $attendee;
+    public $attendeeId;
     public $badgePath;
 
     /**
@@ -21,7 +21,8 @@ class SendBadgeEmail implements ShouldQueue
      */
     public function __construct(Attendee $attendee, $badgePath)
     {
-        $this->attendee = $attendee;
+        // Store only the ID to ensure we always fetch fresh data
+        $this->attendeeId = $attendee->id;
         $this->badgePath = $badgePath;
     }
 
@@ -31,17 +32,25 @@ class SendBadgeEmail implements ShouldQueue
     public function handle(): void
     {
         try {
-            if (!$this->attendee->email) {
-                Log::warning("Attendee {$this->attendee->id} has no email address");
+            // Fresh load the attendee to get the latest email address
+            $attendee = Attendee::with('event')->find($this->attendeeId);
+
+            if (!$attendee) {
+                Log::warning("Attendee {$this->attendeeId} not found");
                 return;
             }
 
-            Mail::to($this->attendee->email)
-                ->send(new BadgeEmail($this->attendee, $this->badgePath));
+            if (!$attendee->email) {
+                Log::warning("Attendee {$attendee->id} has no email address");
+                return;
+            }
 
-            Log::info("Badge email sent to {$this->attendee->email}");
+            Mail::to($attendee->email)
+                ->send(new BadgeEmail($attendee, $this->badgePath));
+
+            Log::info("Badge email sent to {$attendee->email}");
         } catch (\Exception $e) {
-            Log::error("Failed to send badge email to {$this->attendee->email}: " . $e->getMessage());
+            Log::error("Failed to send badge email: " . $e->getMessage());
             throw $e; // Re-throw to trigger queue retry
         }
     }

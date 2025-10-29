@@ -119,10 +119,12 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'timezone' => 'required|string',
             'date_format' => 'required|string',
+            'send_welcome_email' => 'nullable|boolean',
         ]);
 
         foreach ($validated as $key => $value) {
-            Setting::set($key, $value, 'string', 'general');
+            $type = $key === 'send_welcome_email' ? 'boolean' : 'string';
+            Setting::set($key, $value, $type, 'general');
         }
 
         return back()->with('success', 'General settings updated successfully');

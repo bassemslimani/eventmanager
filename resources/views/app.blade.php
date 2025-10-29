@@ -41,6 +41,21 @@
         @routes
         @vite(['resources/js/app.ts', "resources/js/Pages/{$page['component']}.vue"])
         @inertiaHead
+
+        <!-- PWA Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/build/sw.js', { scope: '/' })
+                        .then(registration => {
+                            console.log('✅ Service Worker registered:', registration.scope);
+                        })
+                        .catch(error => {
+                            console.error('❌ Service Worker registration failed:', error);
+                        });
+                });
+            }
+        </script>
     </head>
     <body class="font-sans antialiased">
         @inertia

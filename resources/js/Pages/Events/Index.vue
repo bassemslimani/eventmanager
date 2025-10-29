@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import axios from 'axios';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import CustomButton from '@/Components/CustomButton.vue';
 import Tag from 'primevue/tag';
 import Card from 'primevue/card';
+import Dialog from 'primevue/dialog';
+import Password from 'primevue/password';
+import { useToast } from 'primevue/usetoast';
 
 interface Event {
     id: number;
@@ -26,6 +31,15 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const toast = useToast();
+const page = usePage();
+
+// Password verification modal
+const showPasswordDialog = ref(false);
+const selectedEvent = ref<Event | null>(null);
+const adminPassword = ref('');
+const isClearing = ref(false);
+const passwordError = ref('');
 
 const getStatusSeverity = (status: string) => {
     const severities: Record<string, string> = {
@@ -40,6 +54,76 @@ const getStatusSeverity = (status: string) => {
 const deleteEvent = (id: number) => {
     if (confirm('Are you sure you want to delete this event?')) {
         router.delete(`/events/${id}`);
+    }
+};
+
+const openClearCheckinsDialog = (event: Event) => {
+    // Check if user is admin
+    const user = page.props.auth?.user as any;
+    if (!user || user.role !== 'admin') {
+        toast.add({
+            severity: 'error',
+            summary: 'Unauthorized',
+            detail: 'Only administrators can clear check-ins.',
+            life: 3000,
+        });
+        return;
+    }
+
+    selectedEvent.value = event;
+    adminPassword.value = '';
+    passwordError.value = '';
+    showPasswordDialog.value = true;
+};
+
+const clearAllCheckins = async () => {
+    if (!selectedEvent.value) return;
+
+    if (!adminPassword.value) {
+        passwordError.value = 'Password is required';
+        return;
+    }
+
+    isClearing.value = true;
+    passwordError.value = '';
+
+    try {
+        const response = await axios.post(`/events/${selectedEvent.value.id}/check-ins/clear`, {
+            password: adminPassword.value,
+        });
+
+        if (response.data.success) {
+            toast.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: response.data.message,
+                life: 5000,
+            });
+            showPasswordDialog.value = false;
+            adminPassword.value = '';
+            selectedEvent.value = null;
+        }
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            passwordError.value = error.response.data.errors?.password?.[0] || 'Invalid password';
+        } else if (error.response?.status === 403) {
+            toast.add({
+                severity: 'error',
+                summary: 'Unauthorized',
+                detail: 'Only administrators can clear check-ins.',
+                life: 3000,
+            });
+            showPasswordDialog.value = false;
+        } else {
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.response?.data?.message || 'Failed to clear check-ins',
+                life: 3000,
+            });
+        }
+    } finally {
+        isClearing.value = false;
     }
 };
 </script>
@@ -91,7 +175,7 @@ const deleteEvent = (id: number) => {
                                     <span class="ml-2 font-medium">{{ new Date(event.date).toLocaleDateString() }}</span>
                                 </div>
 
-                                <div class="grid grid-cols-3 gap-2 pt-2">
+                                <div class="grid grid-cols-2 gap-2 pt-2">
                                     <Button
                                         icon="pi pi-id-card"
                                         label="Badges"
@@ -99,6 +183,15 @@ const deleteEvent = (id: number) => {
                                         size="small"
                                         class="text-xs"
                                         @click="router.visit(`/events/${event.id}/badge-designer`)"
+                                    />
+                                    <Button
+                                        icon="pi pi-refresh"
+                                        label="Clear Check-ins"
+                                        severity="danger"
+                                        size="small"
+                                        class="text-xs"
+                                        v-if="$page.props.auth?.user?.role === 'admin'"
+                                        @click="openClearCheckinsDialog(event)"
                                     />
                                     <Button
                                         icon="pi pi-pencil"
@@ -156,7 +249,7 @@ const deleteEvent = (id: number) => {
                             </template>
                         </Column>
 
-                        <Column header="Actions" style="width: 200px">
+                        <Column header="Actions" style="width: 250px">
                             <template #body="slotProps">
                                 <div class="flex gap-2">
                                     <Button
@@ -165,6 +258,14 @@ const deleteEvent = (id: number) => {
                                         size="small"
                                         v-tooltip.top="'Badge Designer'"
                                         @click="router.visit(`/events/${slotProps.data.id}/badge-designer`)"
+                                    />
+                                    <Button
+                                        v-if="$page.props.auth?.user?.role === 'admin'"
+                                        icon="pi pi-refresh"
+                                        severity="danger"
+                                        size="small"
+                                        v-tooltip.top="'Clear All Check-ins'"
+                                        @click="openClearCheckinsDialog(slotProps.data)"
                                     />
                                     <Button
                                         icon="pi pi-pencil"
@@ -187,5 +288,69 @@ const deleteEvent = (id: number) => {
                 </div>
             </div>
         </div>
+
+        <!-- Password Verification Dialog -->
+        <Dialog
+            v-model:visible="showPasswordDialog"
+            modal
+            :closable="!isClearing"
+            :draggable="false"
+            :style="{ width: '450px' }"
+            class="p-fluid"
+        >
+            <template #header>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-exclamation-triangle text-red-500 text-2xl"></i>
+                    <span class="font-bold">Clear All Check-ins</span>
+                </div>
+            </template>
+
+            <div class="space-y-4">
+                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <p class="text-sm text-red-800 dark:text-red-200">
+                        <strong>Warning:</strong> This will permanently delete all check-in records for
+                        <strong>{{ selectedEvent?.name }}</strong> and reset all attendee check-in statuses.
+                    </p>
+                    <p class="text-sm text-red-700 dark:text-red-300 mt-2">
+                        This action cannot be undone!
+                    </p>
+                </div>
+
+                <div class="field">
+                    <label for="adminPassword" class="block font-medium mb-2">
+                        Enter your admin password to confirm:
+                    </label>
+                    <Password
+                        id="adminPassword"
+                        v-model="adminPassword"
+                        placeholder="Admin Password"
+                        :feedback="false"
+                        toggleMask
+                        :disabled="isClearing"
+                        :class="{ 'p-invalid': passwordError }"
+                        @keyup.enter="clearAllCheckins"
+                    />
+                    <small v-if="passwordError" class="p-error">{{ passwordError }}</small>
+                </div>
+            </div>
+
+            <template #footer>
+                <Button
+                    label="Cancel"
+                    icon="pi pi-times"
+                    text
+                    severity="secondary"
+                    :disabled="isClearing"
+                    @click="showPasswordDialog = false"
+                />
+                <Button
+                    label="Clear All Check-ins"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    :loading="isClearing"
+                    @click="clearAllCheckins"
+                />
+            </template>
+        </Dialog>
     </AuthenticatedLayout>
 </template>

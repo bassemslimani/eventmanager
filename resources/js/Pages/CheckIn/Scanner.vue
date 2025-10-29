@@ -13,6 +13,12 @@ const isScanning = ref(false);
 const lastScannedCode = ref('');
 const scanResult = ref<{success: boolean, message: string, attendee?: any} | null>(null);
 
+// Auto-stop timer
+const SCAN_TIMEOUT = 10; // seconds
+const remainingTime = ref(SCAN_TIMEOUT);
+let scanTimeout: number | undefined;
+let countdownInterval: number | undefined;
+
 const startScanning = async () => {
     if (!videoElement.value) return;
 
@@ -29,13 +35,47 @@ const startScanning = async () => {
         await scanner.value.start();
         isScanning.value = true;
         scanResult.value = null;
+
+        // Reset and start countdown
+        remainingTime.value = SCAN_TIMEOUT;
+        startCountdown();
+
+        // Auto-stop after 10 seconds
+        scanTimeout = window.setTimeout(() => {
+            stopScanning();
+            console.log('Scanner auto-stopped after 10 seconds');
+        }, SCAN_TIMEOUT * 1000);
     } catch (error) {
         console.error('Error starting scanner:', error);
         alert('Failed to start camera. Please check permissions.');
     }
 };
 
+const startCountdown = () => {
+    // Clear any existing countdown
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+
+    countdownInterval = window.setInterval(() => {
+        remainingTime.value--;
+        if (remainingTime.value <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+};
+
 const stopScanning = () => {
+    // Clear timers
+    if (scanTimeout) {
+        clearTimeout(scanTimeout);
+        scanTimeout = undefined;
+    }
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = undefined;
+    }
+
     if (scanner.value) {
         scanner.value.stop();
         scanner.value.destroy();
@@ -142,6 +182,9 @@ onUnmounted(() => {
     if (tokenRefreshInterval) {
         clearInterval(tokenRefreshInterval);
     }
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
 });
 </script>
 
@@ -174,12 +217,41 @@ onUnmounted(() => {
                         >
                             <div class="w-40 h-40 sm:w-64 sm:h-64 border-4 border-blue-600 rounded-lg animate-pulse"></div>
                         </div>
+
+                        <!-- Countdown Timer -->
+                        <div
+                            v-if="isScanning"
+                            class="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg px-4 py-2"
+                        >
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-clock text-white text-lg"></i>
+                                <span class="text-white font-bold text-xl">{{ remainingTime }}s</span>
+                            </div>
+                            <div class="mt-1 bg-gray-600 rounded-full h-1 overflow-hidden">
+                                <div
+                                    class="bg-blue-500 h-full transition-all duration-1000 ease-linear"
+                                    :style="{ width: `${(remainingTime / SCAN_TIMEOUT) * 100}%` }"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <!-- Camera Inactive Message -->
+                        <div
+                            v-if="!isScanning"
+                            class="absolute inset-0 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm"
+                        >
+                            <div class="text-center px-4">
+                                <i class="pi pi-camera text-white text-5xl mb-3 opacity-50"></i>
+                                <p class="text-white text-lg font-medium">Camera Stopped</p>
+                                <p class="text-gray-300 text-sm mt-2">Click "Start Scanning" to activate camera</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Controls -->
                     <div class="flex justify-center gap-3 sm:gap-4 mt-4">
                         <CustomButton
-                            v-if="!isScanning"
+                            v-if="!isScanning && !scanResult"
                             label="Start Scanning"
                             icon="pi-camera"
                             severity="primary"
@@ -187,13 +259,20 @@ onUnmounted(() => {
                             @click="startScanning"
                         />
                         <CustomButton
-                            v-else
+                            v-else-if="isScanning"
                             label="Stop Scanning"
                             icon="pi-stop"
                             severity="danger"
                             class="w-full sm:w-auto"
                             @click="stopScanning"
                         />
+                        <div
+                            v-else-if="scanResult"
+                            class="text-center text-gray-500 dark:text-gray-400 w-full py-3"
+                        >
+                            <i class="pi pi-info-circle mr-2"></i>
+                            <span class="text-sm">Click "Continue Scanning" below to scan next badge</span>
+                        </div>
                     </div>
                 </div>
 

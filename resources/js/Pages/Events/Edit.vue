@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import CustomButton from '@/Components/CustomButton.vue';
@@ -8,6 +9,7 @@ import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Calendar from 'primevue/calendar';
 import Dropdown from 'primevue/dropdown';
+import FileUpload from 'primevue/fileupload';
 
 interface Event {
     id: number;
@@ -19,6 +21,7 @@ interface Event {
     description: string | null;
     description_ar: string | null;
     status: string;
+    logo: string | null;
 }
 
 interface Props {
@@ -36,7 +39,31 @@ const form = useForm({
     description: props.event.description || '',
     description_ar: props.event.description_ar || '',
     status: props.event.status,
+    logo: null as File | null,
 });
+
+const logoPreview = ref<string | null>(
+    props.event.logo ? `/storage/${props.event.logo}` : null
+);
+
+const handleLogoUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (file) {
+        form.logo = file;
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            logoPreview.value = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const removeLogo = () => {
+    form.logo = null;
+    logoPreview.value = props.event.logo ? `/storage/${props.event.logo}` : null;
+};
 
 const statusOptions = [
     { label: 'Draft', value: 'draft' },
@@ -58,7 +85,8 @@ const submit = () => {
     form.transform((data) => ({
         ...data,
         date: formattedDate,
-    })).put(`/events/${props.event.id}`);
+        _method: 'PUT',
+    })).post(`/events/${props.event.id}`);
 };
 </script>
 
@@ -159,6 +187,36 @@ const submit = () => {
                                     class="w-full"
                                     dir="rtl"
                                 />
+                            </div>
+
+                            <!-- Event Logo -->
+                            <div>
+                                <label for="logo" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                                    Event Logo
+                                </label>
+
+                                <!-- Current Logo Preview -->
+                                <div v-if="logoPreview" class="mb-3 flex items-center gap-3">
+                                    <img :src="logoPreview" alt="Event Logo" class="h-24 w-24 object-contain border rounded-lg p-2 bg-gray-50">
+                                    <CustomButton
+                                        v-if="form.logo"
+                                        icon="pi-times"
+                                        label="Remove"
+                                        severity="danger"
+                                        size="small"
+                                        @click="removeLogo"
+                                    />
+                                </div>
+
+                                <input
+                                    id="logo"
+                                    type="file"
+                                    accept="image/*"
+                                    @change="handleLogoUpload"
+                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-gray-700 dark:file:text-gray-300"
+                                />
+                                <small class="text-gray-500 dark:text-gray-400">Recommended size: 200x200px. Max 2MB. This logo will appear in all event-related emails.</small>
+                                <small v-if="form.errors.logo" class="p-error block mt-1">{{ form.errors.logo }}</small>
                             </div>
 
                             <!-- Description (English) -->

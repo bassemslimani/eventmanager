@@ -201,7 +201,9 @@
 <body>
     <div class="container">
         <div class="header">
-            @if(config('app.logo'))
+            @if($event->logo)
+                <img src="{{ asset('storage/' . $event->logo) }}" alt="{{ $event->name }} Logo" class="logo">
+            @elseif(config('app.logo'))
                 <img src="{{ config('app.logo') }}" alt="Logo" class="logo">
             @endif
             <h1>🎫 Your Event Badge is Ready!</h1>

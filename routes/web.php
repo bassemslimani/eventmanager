@@ -105,6 +105,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('check-in/manual', [CheckInController::class, 'manualCheckIn'])->name('checkin.manual.submit');
     Route::get('check-in/history', [CheckInController::class, 'history'])->name('checkin.history');
 
+    // Admin-only: Clear all check-ins for an event
+    Route::post('events/{event}/check-ins/clear', [CheckInController::class, 'clearAll'])->middleware('admin')->name('events.checkins.clear');
+
     // Profile - All users
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

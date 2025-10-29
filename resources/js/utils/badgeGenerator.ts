@@ -17,6 +17,7 @@ export interface BadgeData {
         email: string;
         qr_uuid: string;
         phone?: string;
+        role?: string;
     };
     event: {
         name: string;
@@ -148,6 +149,7 @@ async function renderDesignerElements(pdf: any, elements: any[], data: BadgeData
             'attendee.category': attendee.type.charAt(0).toUpperCase() + attendee.type.slice(1),
             'attendee.email': attendee.email,
             'attendee.phone': attendee.phone || '',
+            'attendee.role': attendee.role || '',
             'attendee.qr_uuid': attendee.qr_uuid,
         };
 
@@ -190,10 +192,10 @@ async function renderDesignerElements(pdf: any, elements: any[], data: BadgeData
             const qrY = element.y - qrHeight / 2;
 
             try {
-                // Generate QR code as PNG (more reliable than SVG in PDF)
+                // Generate QR code as PNG (premium quality)
                 const qrData = attendee.qr_uuid;
                 const qrDataUrl = await QRCode.toDataURL(qrData, {
-                    width: 800,  // High resolution for print quality
+                    width: 600,  // Premium resolution for perfect scanning
                     margin: 1,
                     color: {
                         dark: '#000000',
@@ -273,9 +275,9 @@ async function renderLegacyLayout(pdf: any, data: BadgeData): Promise<void> {
         const qrY = 8.5;
 
         try {
-            // Generate QR code as PNG
+            // Generate QR code as PNG (premium quality)
             const qrDataUrl = await QRCode.toDataURL(attendee.qr_uuid, {
-                width: 800,
+                width: 600,
                 margin: 1,
                 color: {
                     dark: '#000000',
@@ -290,7 +292,38 @@ async function renderLegacyLayout(pdf: any, data: BadgeData): Promise<void> {
 }
 
 /**
- * Helper function to add image to PDF
+ * Compress image using canvas to reduce PDF size
+ */
+function compressImage(img: HTMLImageElement, maxWidth: number, quality: number = 0.6): string {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+        // Fallback to original if canvas not available
+        return img.src;
+    }
+
+    // Calculate new dimensions maintaining aspect ratio
+    let width = img.width;
+    let height = img.height;
+
+    if (width > maxWidth) {
+        height = (maxWidth / width) * height;
+        width = maxWidth;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+
+    // Draw image on canvas
+    ctx.drawImage(img, 0, 0, width, height);
+
+    // Return compressed JPEG data URL
+    return canvas.toDataURL('image/jpeg', quality);
+}
+
+/**
+ * Helper function to add image to PDF (with compression)
  */
 async function addImageToPDF(pdf: any, imageUrl: string, x: number, y: number, width: number, height: number): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -306,9 +339,14 @@ async function addImageToPDF(pdf: any, imageUrl: string, x: number, y: number, w
         img.onload = () => {
             clearTimeout(timeout);
             try {
-                // Detect image format from URL
-                const format = imageUrl.toLowerCase().endsWith('.png') ? 'PNG' : 'JPEG';
-                pdf.addImage(img, format, x, y, width, height);
+                // Premium quality compression (max 1600px width, 90% quality)
+                const compressedDataUrl = compressImage(img, 1600, 0.90);
+
+                // Detect format (use JPEG for compressed images)
+                const format = compressedDataUrl.includes('image/png') ? 'PNG' : 'JPEG';
+                pdf.addImage(compressedDataUrl, format, x, y, width, height);
+
+                console.log(`Image compressed: ${img.width}x${img.height} → reduced size`);
                 resolve();
             } catch (error) {
                 reject(error);
@@ -327,7 +365,7 @@ async function addImageToPDF(pdf: any, imageUrl: string, x: number, y: number, w
 }
 
 /**
- * Helper function to add image to PDF with aspect ratio preservation
+ * Helper function to add image to PDF with aspect ratio preservation (with compression)
  */
 async function addImageToPDFWithAspectRatio(pdf: any, imageUrl: string, x: number, y: number, maxWidth: number, maxHeight: number): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -362,11 +400,13 @@ async function addImageToPDFWithAspectRatio(pdf: any, imageUrl: string, x: numbe
                 const offsetX = x + (maxWidth - renderWidth) / 2;
                 const offsetY = y + (maxHeight - renderHeight) / 2;
 
-                // Detect image format from URL
-                const format = imageUrl.toLowerCase().endsWith('.png') ? 'PNG' : 'JPEG';
-                pdf.addImage(img, format, offsetX, offsetY, renderWidth, renderHeight);
+                // Premium logo quality (max 1000px width, 92% quality)
+                const compressedDataUrl = compressImage(img, 1000, 0.92);
+                const format = compressedDataUrl.includes('image/png') ? 'PNG' : 'JPEG';
 
-                console.log(`Image loaded: ${img.width}x${img.height}, rendered as: ${renderWidth.toFixed(2)}x${renderHeight.toFixed(2)}`);
+                pdf.addImage(compressedDataUrl, format, offsetX, offsetY, renderWidth, renderHeight);
+
+                console.log(`Image compressed: ${img.width}x${img.height} → ${renderWidth.toFixed(2)}x${renderHeight.toFixed(2)} cm`);
                 resolve();
             } catch (error) {
                 reject(error);

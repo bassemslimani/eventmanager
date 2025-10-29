@@ -125,7 +125,9 @@
 <body>
     <div class="container">
         <div class="header">
-            @if(config('app.logo'))
+            @if($event->logo)
+                <img src="{{ asset('storage/' . $event->logo) }}" alt="{{ $event->name }} Logo" class="logo">
+            @elseif(config('app.logo'))
                 <img src="{{ config('app.logo') }}" alt="Logo" class="logo">
             @endif
             <h1>Welcome to {{ $event->name }}!</h1>
@@ -216,7 +218,6 @@
                 <ul>
                     <li>Access to designated event areas</li>
                     <li>Networking opportunities with other attendees</li>
-                    <li>Event materials and resources</li>
                     <li>Refreshments and hospitality services</li>
                 </ul>
             </div>
@@ -227,9 +228,7 @@
                 <ol style="margin: 10px 0; padding-left: 20px;">
                     <li><strong>Check your email</strong> for your event badge (arriving separately)</li>
                     <li><strong>Print your badge</strong> or save it to your mobile device</li>
-                    <li><strong>Mark your calendar</strong> for {{ \Carbon\Carbon::parse($event->start_date)->format('F d, Y') }}</li>
-                    <li><strong>Plan your travel</strong> and accommodation if needed</li>
-                    <li><strong>Prepare questions</strong> for exhibitors and speakers</li>
+                    <li><strong>Mark your calendar</strong> for {{ $event->date->format('F d, Y') }}@if($event->end_date) - {{ \Carbon\Carbon::parse($event->end_date)->format('F d, Y') }}@endif</li>
                 </ol>
             </div>
 

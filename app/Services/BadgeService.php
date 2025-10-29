@@ -44,16 +44,26 @@ class BadgeService
             Log::info("Found badge template ID: {$template->id} for attendee: {$attendee->id}");
 
             // Generate QR code as PNG using endroid/qr-code (works with GD)
+            // Reduced size from 800 to 300 to reduce PDF file size
             $qrCode = \Endroid\QrCode\Builder\Builder::create()
                 ->data($attendee->qr_uuid)
-                ->size(800)
+                ->size(300) // Reduced from 800 for smaller PDF size
                 ->margin(10)
                 ->build();
 
             // Convert to base64 data URL for DomPDF
             $qrCodeDataUrl = 'data:image/png;base64,' . base64_encode($qrCode->getString());
 
-            Log::info("QR Code generated as PNG for attendee: {$attendee->id}");
+            Log::info("QR Code generated as PNG (300x300) for attendee: {$attendee->id}");
+
+            // Compress template background image to reduce PDF size
+            $compressedTemplate = $this->compressTemplateImage($template->front_template);
+
+            // Compress event logo if exists
+            $compressedLogo = null;
+            if ($event->logo) {
+                $compressedLogo = $this->compressImage($event->logo, 500, 500, 75);
+            }
 
             // Get badge dimensions
             $badgeWidthCm = $template->badge_width_cm ?? 8.5;
@@ -70,6 +80,8 @@ class BadgeService
                 'qrCode' => $qrCodeDataUrl,
                 'badgeWidthCm' => $badgeWidthCm,
                 'badgeHeightCm' => $badgeHeightCm,
+                'compressedTemplate' => $compressedTemplate,
+                'compressedLogo' => $compressedLogo,
             ]);
 
             // Set paper size
@@ -113,5 +125,135 @@ class BadgeService
         // For now, always generate a fresh PDF
         // In the future, we could check for existing PDFs and reuse them if they're recent
         return $this->generateBadgePDF($attendee);
+    }
+
+    /**
+     * Compress template background image to reduce PDF size
+     * Target: Reduce 1.4MB image to ~200KB for email-friendly PDFs
+     */
+    private function compressTemplateImage(?string $templatePath): ?string
+    {
+        if (!$templatePath) {
+            return null;
+        }
+
+        try {
+            $fullPath = storage_path('app/public/' . $templatePath);
+
+            if (!file_exists($fullPath)) {
+                Log::warning("Template image not found: {$fullPath}");
+                return null;
+            }
+
+            // Compress at 800px width (sufficient for badges), 60% quality
+            return $this->compressImage($templatePath, 800, 1200, 60);
+
+        } catch (\Exception $e) {
+            Log::error("Failed to compress template image: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Compress an image and return base64 data URL
+     *
+     * @param string $imagePath Path relative to storage/app/public
+     * @param int $maxWidth Maximum width in pixels
+     * @param int $maxHeight Maximum height in pixels
+     * @param int $quality JPEG quality (1-100)
+     * @return string|null Base64 data URL
+     */
+    private function compressImage(string $imagePath, int $maxWidth, int $maxHeight, int $quality): ?string
+    {
+        try {
+            $fullPath = storage_path('app/public/' . $imagePath);
+
+            if (!file_exists($fullPath)) {
+                return null;
+            }
+
+            // Get image info
+            $imageInfo = getimagesize($fullPath);
+            if (!$imageInfo) {
+                return null;
+            }
+
+            [$width, $height, $type] = $imageInfo;
+
+            // Create image resource based on type
+            $source = null;
+            switch ($type) {
+                case IMAGETYPE_JPEG:
+                    $source = imagecreatefromjpeg($fullPath);
+                    break;
+                case IMAGETYPE_PNG:
+                    $source = imagecreatefrompng($fullPath);
+                    break;
+                case IMAGETYPE_GIF:
+                    $source = imagecreatefromgif($fullPath);
+                    break;
+                default:
+                    Log::warning("Unsupported image type for compression: {$type}");
+                    return null;
+            }
+
+            if (!$source) {
+                return null;
+            }
+
+            // Calculate new dimensions maintaining aspect ratio
+            $ratio = min($maxWidth / $width, $maxHeight / $height);
+
+            // Only resize if image is larger than max dimensions
+            if ($ratio < 1) {
+                $newWidth = (int) ($width * $ratio);
+                $newHeight = (int) ($height * $ratio);
+            } else {
+                $newWidth = $width;
+                $newHeight = $height;
+            }
+
+            // Create new image with resampled dimensions
+            $resized = imagecreatetruecolor($newWidth, $newHeight);
+
+            // Preserve transparency for PNG
+            if ($type === IMAGETYPE_PNG) {
+                imagealphablending($resized, false);
+                imagesavealpha($resized, true);
+                $transparent = imagecolorallocatealpha($resized, 255, 255, 255, 127);
+                imagefilledrectangle($resized, 0, 0, $newWidth, $newHeight, $transparent);
+            }
+
+            // Resample the image
+            imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+            // Capture output to base64
+            ob_start();
+            if ($type === IMAGETYPE_PNG) {
+                // PNG with compression level 6 (balance between size and quality)
+                imagepng($resized, null, 6);
+                $mimeType = 'image/png';
+            } else {
+                // Convert to JPEG with specified quality
+                imagejpeg($resized, null, $quality);
+                $mimeType = 'image/jpeg';
+            }
+            $imageData = ob_get_clean();
+
+            // Clean up
+            imagedestroy($source);
+            imagedestroy($resized);
+
+            // Return as base64 data URL
+            $base64 = base64_encode($imageData);
+
+            Log::info("Image compressed: Original {$width}x{$height}, New {$newWidth}x{$newHeight}, Size: " . strlen($imageData) . " bytes");
+
+            return "data:{$mimeType};base64,{$base64}";
+
+        } catch (\Exception $e) {
+            Log::error("Failed to compress image {$imagePath}: " . $e->getMessage());
+            return null;
+        }
     }
 }

@@ -197,17 +197,91 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-6">General Configuration</h3>
                     <form @submit.prevent="updateGeneralSettings">
                         <div class="space-y-6">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex-1">
+                                    <label class="text-sm font-medium text-gray-700">Send Welcome Email on Attendee Registration</label>
+                                    <p class="text-sm text-gray-500 mt-1">Automatically send a welcome email when a new attendee is created</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" v-model="generalForm.send_welcome_email" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Timezone</label>
                                 <select v-model="generalForm.timezone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="UTC">UTC</option>
-                                    <option value="America/New_York">America/New York (EST)</option>
-                                    <option value="America/Chicago">America/Chicago (CST)</option>
-                                    <option value="America/Los_Angeles">America/Los Angeles (PST)</option>
-                                    <option value="Europe/London">Europe/London</option>
-                                    <option value="Europe/Paris">Europe/Paris</option>
-                                    <option value="Asia/Dubai">Asia/Dubai</option>
-                                    <option value="Asia/Tokyo">Asia/Tokyo</option>
+                                    <optgroup label="UTC">
+                                        <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                    </optgroup>
+                                    <optgroup label="Middle East & Gulf">
+                                        <option value="Asia/Qatar">Asia/Qatar (GMT+3) - Doha</option>
+                                        <option value="Asia/Dubai">Asia/Dubai (GMT+4) - UAE</option>
+                                        <option value="Asia/Kuwait">Asia/Kuwait (GMT+3) - Kuwait</option>
+                                        <option value="Asia/Bahrain">Asia/Bahrain (GMT+3) - Bahrain</option>
+                                        <option value="Asia/Riyadh">Asia/Riyadh (GMT+3) - Saudi Arabia</option>
+                                        <option value="Asia/Muscat">Asia/Muscat (GMT+4) - Oman</option>
+                                        <option value="Asia/Jerusalem">Asia/Jerusalem (GMT+2) - Israel</option>
+                                        <option value="Asia/Beirut">Asia/Beirut (GMT+2) - Lebanon</option>
+                                    </optgroup>
+                                    <optgroup label="North America">
+                                        <option value="America/New_York">America/New York (EST/EDT)</option>
+                                        <option value="America/Chicago">America/Chicago (CST/CDT)</option>
+                                        <option value="America/Denver">America/Denver (MST/MDT)</option>
+                                        <option value="America/Los_Angeles">America/Los Angeles (PST/PDT)</option>
+                                        <option value="America/Toronto">America/Toronto (EST/EDT) - Canada</option>
+                                        <option value="America/Vancouver">America/Vancouver (PST/PDT) - Canada</option>
+                                        <option value="America/Mexico_City">America/Mexico City (CST/CDT)</option>
+                                    </optgroup>
+                                    <optgroup label="Europe">
+                                        <option value="Europe/London">Europe/London (GMT/BST) - UK</option>
+                                        <option value="Europe/Paris">Europe/Paris (CET/CEST) - France</option>
+                                        <option value="Europe/Berlin">Europe/Berlin (CET/CEST) - Germany</option>
+                                        <option value="Europe/Rome">Europe/Rome (CET/CEST) - Italy</option>
+                                        <option value="Europe/Madrid">Europe/Madrid (CET/CEST) - Spain</option>
+                                        <option value="Europe/Amsterdam">Europe/Amsterdam (CET/CEST) - Netherlands</option>
+                                        <option value="Europe/Brussels">Europe/Brussels (CET/CEST) - Belgium</option>
+                                        <option value="Europe/Zurich">Europe/Zurich (CET/CEST) - Switzerland</option>
+                                        <option value="Europe/Stockholm">Europe/Stockholm (CET/CEST) - Sweden</option>
+                                        <option value="Europe/Athens">Europe/Athens (EET/EEST) - Greece</option>
+                                        <option value="Europe/Istanbul">Europe/Istanbul (TRT) - Turkey</option>
+                                        <option value="Europe/Moscow">Europe/Moscow (MSK) - Russia</option>
+                                    </optgroup>
+                                    <optgroup label="Asia">
+                                        <option value="Asia/Tokyo">Asia/Tokyo (JST) - Japan</option>
+                                        <option value="Asia/Seoul">Asia/Seoul (KST) - South Korea</option>
+                                        <option value="Asia/Shanghai">Asia/Shanghai (CST) - China</option>
+                                        <option value="Asia/Hong_Kong">Asia/Hong Kong (HKT)</option>
+                                        <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+                                        <option value="Asia/Bangkok">Asia/Bangkok (ICT) - Thailand</option>
+                                        <option value="Asia/Jakarta">Asia/Jakarta (WIB) - Indonesia</option>
+                                        <option value="Asia/Manila">Asia/Manila (PHT) - Philippines</option>
+                                        <option value="Asia/Karachi">Asia/Karachi (PKT) - Pakistan</option>
+                                        <option value="Asia/Kolkata">Asia/Kolkata (IST) - India</option>
+                                        <option value="Asia/Dhaka">Asia/Dhaka (BST) - Bangladesh</option>
+                                    </optgroup>
+                                    <optgroup label="Australia & Pacific">
+                                        <option value="Australia/Sydney">Australia/Sydney (AEDT/AEST)</option>
+                                        <option value="Australia/Melbourne">Australia/Melbourne (AEDT/AEST)</option>
+                                        <option value="Australia/Brisbane">Australia/Brisbane (AEST)</option>
+                                        <option value="Australia/Perth">Australia/Perth (AWST)</option>
+                                        <option value="Pacific/Auckland">Pacific/Auckland (NZDT/NZST) - New Zealand</option>
+                                        <option value="Pacific/Fiji">Pacific/Fiji (FJT)</option>
+                                    </optgroup>
+                                    <optgroup label="Africa">
+                                        <option value="Africa/Cairo">Africa/Cairo (EET) - Egypt</option>
+                                        <option value="Africa/Johannesburg">Africa/Johannesburg (SAST) - South Africa</option>
+                                        <option value="Africa/Lagos">Africa/Lagos (WAT) - Nigeria</option>
+                                        <option value="Africa/Nairobi">Africa/Nairobi (EAT) - Kenya</option>
+                                        <option value="Africa/Casablanca">Africa/Casablanca (WET) - Morocco</option>
+                                    </optgroup>
+                                    <optgroup label="South America">
+                                        <option value="America/Sao_Paulo">America/Sao Paulo (BRT) - Brazil</option>
+                                        <option value="America/Buenos_Aires">America/Buenos Aires (ART) - Argentina</option>
+                                        <option value="America/Santiago">America/Santiago (CLT) - Chile</option>
+                                        <option value="America/Bogota">America/Bogota (COT) - Colombia</option>
+                                        <option value="America/Lima">America/Lima (PET) - Peru</option>
+                                    </optgroup>
                                 </select>
                             </div>
 
@@ -281,7 +355,8 @@ const seoForm = reactive({
 
 const generalForm = reactive({
     timezone: props.settings?.general?.timezone || 'UTC',
-    date_format: props.settings?.general?.date_format || 'Y-m-d'
+    date_format: props.settings?.general?.date_format || 'Y-m-d',
+    send_welcome_email: props.settings?.general?.send_welcome_email ?? true
 });
 
 // Test email modal

@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Attendee;
@@ -44,6 +45,10 @@ class BadgeEmailDirect extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address(
+                \App\Models\Setting::get('mail_from_address', config('mail.from.address')),
+                \App\Models\Setting::get('mail_from_name', config('mail.from.name'))
+            ),
             subject: '🎫 Your Event Badge - ' . $this->event->name,
         );
     }

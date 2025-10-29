@@ -6,6 +6,9 @@ use App\Models\Attendee;
 use App\Models\CheckIn;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -168,5 +171,78 @@ class CheckInController extends Controller
             'events' => $events,
             'filters' => $request->only(['event_id', 'date']),
         ]);
+    }
+
+    public function clearAll(Request $request, Event $event)
+    {
+        try {
+            // Ensure user is admin
+            if (!$request->user() || !$request->user()->isAdmin()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized. Only admins can clear check-ins.',
+                ], 403);
+            }
+
+            // Validate password
+            $request->validate([
+                'password' => 'required|string',
+            ]);
+
+            // Verify admin password
+            if (!Hash::check($request->password, $request->user()->password)) {
+                throw ValidationException::withMessages([
+                    'password' => 'The provided password is incorrect.',
+                ]);
+            }
+
+            // Count check-ins before clearing
+            $checkInCount = CheckIn::where('event_id', $event->id)->count();
+            $attendeeCount = Attendee::where('event_id', $event->id)
+                ->whereNotNull('checked_in_at')
+                ->count();
+
+            // Clear check-in records
+            CheckIn::where('event_id', $event->id)->delete();
+
+            // Reset attendee check-in status
+            Attendee::where('event_id', $event->id)
+                ->update([
+                    'checked_in_at' => null,
+                    'checked_in_by' => null,
+                ]);
+
+            \Log::info('All check-ins cleared for event', [
+                'event_id' => $event->id,
+                'event_name' => $event->name,
+                'admin_id' => $request->user()->id,
+                'admin_email' => $request->user()->email,
+                'check_ins_cleared' => $checkInCount,
+                'attendees_reset' => $attendeeCount,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully cleared {$checkInCount} check-in records for {$attendeeCount} attendees.",
+                'cleared_count' => $checkInCount,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error clearing check-ins', [
+                'event_id' => $event->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -9,6 +9,7 @@ import Dropdown from 'primevue/dropdown';
 import Tag from 'primevue/tag';
 import Checkbox from 'primevue/checkbox';
 import Card from 'primevue/card';
+import InputText from 'primevue/inputtext';
 
 interface Attendee {
     id: number;
@@ -37,6 +38,7 @@ interface Props {
         type?: string;
         badge_status?: string;
         event_id?: number;
+        search?: string;
     };
 }
 
@@ -46,6 +48,7 @@ const filters = ref({
     event_id: props.filters.event_id || null,
     type: props.filters.type || null,
     badge_status: props.filters.badge_status || null,
+    search: props.filters.search || '',
 });
 
 const selectedAttendees = ref<Attendee[]>([]);
@@ -170,6 +173,31 @@ const isSelected = (attendee: Attendee) => {
 
                 <!-- Filters -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-3 sm:p-4 mb-4 sm:mb-6">
+                    <!-- Search Bar -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Search</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="pi pi-search text-gray-400"></i>
+                            </span>
+                            <InputText
+                                v-model="filters.search"
+                                placeholder="Search by name, email, or mobile..."
+                                class="w-full pl-10"
+                                @keyup.enter="searchBadges"
+                            />
+                            <CustomButton
+                                v-if="filters.search"
+                                icon="pi-times"
+                                severity="secondary"
+                                text
+                                rounded
+                                class="absolute inset-y-0 right-0"
+                                @click="filters.search = ''; searchBadges()"
+                            />
+                        </div>
+                    </div>
+
                     <div class="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 md:grid-cols-4 sm:gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">Event</label>
@@ -216,7 +244,7 @@ const isSelected = (attendee: Attendee) => {
                                 icon="pi-filter-slash"
                                 severity="secondary"
                                 class="w-full"
-                                @click="filters = { event_id: null, type: null, badge_status: null }; searchBadges()"
+                                @click="filters = { event_id: null, type: null, badge_status: null, search: '' }; searchBadges()"
                             />
                         </div>
                     </div>

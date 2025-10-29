@@ -80,15 +80,22 @@ const submit = () => {
 
                     <!-- Event -->
                     <div v-if="events.length > 0">
-                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Event (Optional)</label>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                            Event <span class="text-red-500">*</span>
+                        </label>
                         <Dropdown
                             v-model="form.event_id"
                             :options="events"
                             optionLabel="name"
                             optionValue="id"
-                            placeholder="Select event"
+                            placeholder="Select event (required)"
                             class="w-full"
+                            :class="{ 'p-invalid': form.errors.event_id }"
                         />
+                        <small v-if="form.errors.event_id" class="text-red-500">{{ form.errors.event_id }}</small>
+                    </div>
+                    <div v-else class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded">
+                        <p class="text-sm">⚠️ No active events found. Please create an event first before adding attendees.</p>
                     </div>
 
                     <!-- Name -->

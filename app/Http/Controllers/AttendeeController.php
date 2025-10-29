@@ -56,7 +56,7 @@ class AttendeeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'event_id' => 'nullable|exists:events,id',
+            'event_id' => 'required|exists:events,id',
             'type' => 'required|in:exhibitor,guest,organizer',
             'name' => 'required|string|max:255',
             'name_ar' => 'nullable|string|max:255',
@@ -71,13 +71,18 @@ class AttendeeController extends Controller
 
         $attendee = Attendee::create($validated);
 
-        // Send welcome email if attendee has email and event
-        if ($attendee->email && $attendee->event_id) {
+        // Send welcome email if enabled in settings and attendee has email and event
+        $sendWelcomeEmail = \App\Models\Setting::get('send_welcome_email', true);
+        if ($sendWelcomeEmail && $attendee->email && $attendee->event_id) {
             \App\Jobs\SendWelcomeEmail::dispatch($attendee->load('event'));
         }
 
-        return redirect()->route('attendees.index')
-            ->with('success', 'Attendee created successfully. Welcome email will be sent shortly.');
+        $message = 'Attendee created successfully.';
+        if ($sendWelcomeEmail && $attendee->email && $attendee->event_id) {
+            $message .= ' Welcome email will be sent shortly.';
+        }
+
+        return redirect()->route('attendees.index')->with('success', $message);
     }
 
     public function show(Attendee $attendee): Response
@@ -100,7 +105,7 @@ class AttendeeController extends Controller
     public function update(Request $request, Attendee $attendee)
     {
         $validated = $request->validate([
-            'event_id' => 'nullable|exists:events,id',
+            'event_id' => 'required|exists:events,id',
             'type' => 'required|in:exhibitor,guest,organizer',
             'name' => 'required|string|max:255',
             'name_ar' => 'nullable|string|max:255',

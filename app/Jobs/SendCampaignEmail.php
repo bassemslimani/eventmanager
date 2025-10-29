@@ -13,14 +13,15 @@ class SendCampaignEmail implements ShouldQueue
 {
     use Queueable;
 
-    public $recipient;
+    public $recipientId;
 
     /**
      * Create a new job instance.
      */
     public function __construct(CampaignRecipient $recipient)
     {
-        $this->recipient = $recipient;
+        // Store only the ID to ensure we always fetch fresh data
+        $this->recipientId = $recipient->id;
     }
 
     /**
@@ -29,7 +30,13 @@ class SendCampaignEmail implements ShouldQueue
     public function handle(): void
     {
         try {
-            $recipient = $this->recipient->load('campaign', 'attendee');
+            // Fresh load the recipient and attendee to get the latest email address
+            $recipient = CampaignRecipient::with('campaign', 'attendee')->find($this->recipientId);
+
+            if (!$recipient) {
+                Log::warning("Campaign recipient {$this->recipientId} not found");
+                return;
+            }
             $campaign = $recipient->campaign;
             $attendee = $recipient->attendee;
 
@@ -56,13 +63,18 @@ class SendCampaignEmail implements ShouldQueue
         } catch (\Exception $e) {
             Log::error("Failed to send campaign email: " . $e->getMessage());
 
-            $this->recipient->update([
-                'status' => 'failed',
-                'error' => $e->getMessage()
-            ]);
+            // Reload recipient in case it doesn't exist
+            $recipient = CampaignRecipient::with('campaign')->find($this->recipientId);
 
-            // Update campaign failed count
-            $this->recipient->campaign->increment('failed_count');
+            if ($recipient) {
+                $recipient->update([
+                    'status' => 'failed',
+                    'error' => $e->getMessage()
+                ]);
+
+                // Update campaign failed count
+                $recipient->campaign->increment('failed_count');
+            }
 
             throw $e;
         }

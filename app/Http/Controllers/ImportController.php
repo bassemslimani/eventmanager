@@ -6,6 +6,7 @@ use App\Models\Attendee;
 use App\Models\Event;
 use App\Models\ImportLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -82,7 +83,7 @@ class ImportController extends Controller
     {
         $validated = $request->validate([
             'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
-            'event_id' => 'nullable|exists:events,id',
+            'event_id' => 'required|exists:events,id',
         ]);
 
         $file = $request->file('file');
@@ -108,14 +109,15 @@ class ImportController extends Controller
     {
         $validated = $request->validate([
             'import_log_id' => 'required|exists:import_logs,id',
-            'event_id' => 'nullable|exists:events,id',
+            'event_id' => 'required|exists:events,id',
         ]);
 
         $importLog = ImportLog::find($validated['import_log_id']);
         $importLog->update(['status' => 'processing']);
 
         try {
-            $filePath = storage_path('app/' . $importLog->file_path);
+            // Local disk uses storage/app/private as root
+            $filePath = Storage::disk('local')->path($importLog->file_path);
             $spreadsheet = IOFactory::load($filePath);
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
@@ -136,7 +138,7 @@ class ImportController extends Controller
                     }
 
                     $data = [
-                        'event_id' => $validated['event_id'] ?? null,
+                        'event_id' => $validated['event_id'],
                         'type' => $row[0] ?? 'guest',
                         'name' => $row[1],
                         'name_ar' => $row[2] ?? null,
