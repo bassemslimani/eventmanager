@@ -51,6 +51,7 @@ class ImportController extends Controller
             ['exhibitor', 'John Doe', 'جون دو', 'john@example.com', '+966501234567', 'Tech Corp', 'شركة التقنية', 'company', '', ''],
             ['guest', 'Jane Smith', 'جين سميث', 'jane@example.com', '+966501234568', 'Design Studio', 'استوديو التصميم', '', '', ''],
             ['organizer', 'Admin User', 'المسؤول', 'adminuser@example.com', '+966501234569', '', '', '', 'Event Manager', 'Operations'],
+            ['visitor', 'Ahmed Ali', 'أحمد علي', 'ahmed@example.com', '+966501234570', 'Visitor Company', 'شركة الزائر', 'freelancer', '', ''],
         ];
 
         $sheet->fromArray($sampleData, null, 'A2');

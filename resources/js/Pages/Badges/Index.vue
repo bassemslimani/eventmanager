@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, router, Link } from '@inertiajs/vue3';
+import { ref, onMounted, onUnmounted } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import CustomButton from '@/Components/CustomButton.vue';
@@ -10,6 +10,8 @@ import Tag from 'primevue/tag';
 import Checkbox from 'primevue/checkbox';
 import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
+import Dialog from 'primevue/dialog';
+import ProgressBar from 'primevue/progressbar';
 
 interface Attendee {
     id: number;
@@ -26,6 +28,22 @@ interface Event {
     name: string;
 }
 
+interface BatchDownload {
+    id: number;
+    event_name: string | null;
+    status: string;
+    total_attendees: number;
+    processed_attendees: number;
+    successful_badges: number;
+    failed_badges: number;
+    progress_percentage: number;
+    is_ready_for_download: boolean;
+    error_message: string | null;
+    started_at: string | null;
+    completed_at: string | null;
+    created_at: string;
+}
+
 interface Props {
     attendees: {
         data: Attendee[];
@@ -39,6 +57,7 @@ interface Props {
         badge_status?: string;
         event_id?: number;
         search?: string;
+        per_page?: number;
     };
 }
 
@@ -49,22 +68,37 @@ const filters = ref({
     type: props.filters.type || null,
     badge_status: props.filters.badge_status || null,
     search: props.filters.search || '',
+    per_page: props.filters.per_page || 20,
 });
 
 const selectedAttendees = ref<Attendee[]>([]);
+const showProgressDialog = ref(false);
+const progressMessage = ref('');
+const progressPercent = ref(0);
+
+// Batch downloads
+const batchDownloads = ref<BatchDownload[]>([]);
+const showBatchDialog = ref(false);
+const pollingInterval = ref<number | null>(null);
 
 const typeOptions = [
     { label: 'All Types', value: null },
     { label: 'Exhibitors', value: 'exhibitor' },
     { label: 'Guests', value: 'guest' },
     { label: 'Organizers', value: 'organizer' },
-    { label: 'VIP', value: 'vip' },
+    { label: 'Visitors', value: 'visitor' },
 ];
 
 const statusOptions = [
     { label: 'All Status', value: null },
     { label: 'Generated', value: 'generated' },
     { label: 'Pending', value: 'pending' },
+];
+
+const perPageOptions = [
+    { label: '20 per page', value: 20 },
+    { label: '50 per page', value: 50 },
+    { label: '100 per page', value: 100 },
 ];
 
 const searchBadges = () => {
@@ -97,6 +131,90 @@ const generateBulk = () => {
             router.reload();
         },
     });
+};
+
+const downloadBulk = async () => {
+    if (selectedAttendees.value.length === 0) {
+        alert('Please select at least one attendee.');
+        return;
+    }
+
+    // Filter only generated badges
+    const generatedAttendees = selectedAttendees.value.filter(a => a.badge_generated_at !== null);
+
+    if (generatedAttendees.length === 0) {
+        alert('No generated badges found in selection. Please generate badges first.');
+        return;
+    }
+
+    const attendeeIds = generatedAttendees.map(a => a.id);
+    const totalBadges = attendeeIds.length;
+
+    // Show progress dialog
+    showProgressDialog.value = true;
+    progressPercent.value = 0;
+    progressMessage.value = `Preparing to download ${totalBadges} badge${totalBadges > 1 ? 's' : ''}...`;
+
+    try {
+        // Simulate progress (since we can't track actual server progress)
+        const progressInterval = setInterval(() => {
+            if (progressPercent.value < 90) {
+                progressPercent.value += 10;
+                const current = Math.floor((progressPercent.value / 100) * totalBadges);
+                progressMessage.value = `Generating badge ${current} of ${totalBadges}...`;
+            }
+        }, 500);
+
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        // Make request
+        const response = await fetch('/badges/download-bulk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || '',
+                'Accept': 'application/octet-stream',
+            },
+            body: JSON.stringify({ attendee_ids: attendeeIds }),
+        });
+
+        clearInterval(progressInterval);
+
+        if (!response.ok) {
+            throw new Error('Failed to generate badges');
+        }
+
+        progressPercent.value = 95;
+        progressMessage.value = 'Creating ZIP file...';
+
+        // Get the blob
+        const blob = await response.blob();
+
+        progressPercent.value = 100;
+        progressMessage.value = 'Download complete!';
+
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `badges_${new Date().toISOString().slice(0, 10)}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        // Close dialog after short delay
+        setTimeout(() => {
+            showProgressDialog.value = false;
+            progressPercent.value = 0;
+        }, 1000);
+
+    } catch (error) {
+        console.error('Download error:', error);
+        showProgressDialog.value = false;
+        alert(error instanceof Error ? error.message : 'Failed to download badges. Please try again.');
+    }
 };
 
 const downloadBadge = async (id: number) => {
@@ -138,6 +256,51 @@ const sendEmail = (attendeeId: number, attendeeName: string) => {
     }
 };
 
+const sendEmailBulk = () => {
+    if (selectedAttendees.value.length === 0) {
+        alert('Please select at least one attendee.');
+        return;
+    }
+
+    // Filter only generated badges with email
+    const generatedAttendees = selectedAttendees.value.filter(a => a.badge_generated_at !== null && a.email);
+
+    if (generatedAttendees.length === 0) {
+        alert('No generated badges with email addresses found in selection.');
+        return;
+    }
+
+    if (!confirm(`Send badge emails to ${generatedAttendees.length} attendee(s)?`)) {
+        return;
+    }
+
+    const attendeeIds = generatedAttendees.map(a => a.id);
+    router.post('/badges/send-email-bulk', { attendee_ids: attendeeIds }, {
+        preserveState: true,
+        onSuccess: () => {
+            selectedAttendees.value = [];
+            alert(`Badge emails are being sent to ${generatedAttendees.length} attendee(s)!`);
+        },
+        onError: (errors) => {
+            alert('Failed to send emails. Please try again.');
+            console.error(errors);
+        }
+    });
+};
+
+const generateAll = () => {
+    if (!confirm('Generate ALL pending badges based on current filters? This may take a while.')) {
+        return;
+    }
+
+    router.post('/badges/generate-all', filters.value, {
+        preserveState: true,
+        onSuccess: () => {
+            router.reload();
+        },
+    });
+};
+
 const toggleSelection = (attendee: Attendee) => {
     const index = selectedAttendees.value.findIndex(a => a.id === attendee.id);
     if (index > -1) {
@@ -150,6 +313,137 @@ const toggleSelection = (attendee: Attendee) => {
 const isSelected = (attendee: Attendee) => {
     return selectedAttendees.value.some(a => a.id === attendee.id);
 };
+
+// Batch download methods
+const startBatchDownload = async () => {
+    if (!confirm('Start batch download for all filtered attendees? This will process badges in the background.')) {
+        return;
+    }
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch('/badges/batch/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || '',
+            },
+            body: JSON.stringify(filters.value),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert(data.message);
+            showBatchDialog.value = true;
+            await loadBatchDownloads();
+            startPolling();
+        } else {
+            alert('Failed to start batch download.');
+        }
+    } catch (error) {
+        console.error('Batch download error:', error);
+        alert('Failed to start batch download. Please try again.');
+    }
+};
+
+const loadBatchDownloads = async () => {
+    try {
+        const response = await fetch('/badges/batch/list');
+        const data = await response.json();
+
+        if (data.success) {
+            batchDownloads.value = data.batches;
+        }
+    } catch (error) {
+        console.error('Failed to load batch downloads:', error);
+    }
+};
+
+const downloadBatchFile = (batchId: number) => {
+    window.location.href = `/badges/batch/${batchId}/download`;
+};
+
+const deleteBatch = async (batchId: number) => {
+    if (!confirm('Delete this batch download?')) {
+        return;
+    }
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch(`/badges/batch/${batchId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken || '',
+            },
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            await loadBatchDownloads();
+        } else {
+            alert('Failed to delete batch download.');
+        }
+    } catch (error) {
+        console.error('Failed to delete batch:', error);
+        alert('Failed to delete batch download.');
+    }
+};
+
+const startPolling = () => {
+    if (pollingInterval.value) return;
+
+    pollingInterval.value = window.setInterval(async () => {
+        await loadBatchDownloads();
+
+        // Stop polling if no batches are processing
+        const hasProcessing = batchDownloads.value.some(b => b.status === 'pending' || b.status === 'processing');
+        if (!hasProcessing) {
+            stopPolling();
+        }
+    }, 3000); // Poll every 3 seconds
+};
+
+const stopPolling = () => {
+    if (pollingInterval.value) {
+        clearInterval(pollingInterval.value);
+        pollingInterval.value = null;
+    }
+};
+
+const getStatusSeverity = (status: string) => {
+    switch (status) {
+        case 'completed':
+            return 'success';
+        case 'processing':
+            return 'info';
+        case 'failed':
+            return 'danger';
+        default:
+            return 'warning';
+    }
+};
+
+const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString();
+};
+
+// Lifecycle hooks
+onMounted(async () => {
+    await loadBatchDownloads();
+
+    // Start polling if there are active batches
+    const hasProcessing = batchDownloads.value.some(b => b.status === 'pending' || b.status === 'processing');
+    if (hasProcessing) {
+        startPolling();
+    }
+});
+
+onUnmounted(() => {
+    stopPolling();
+});
 </script>
 
 <template>
@@ -161,14 +455,62 @@ const isSelected = (attendee: Attendee) => {
                 <!-- Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
                     <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Badge Generation</h1>
-                    <CustomButton
-                        label="Generate Selected"
-                        icon="pi-id-card"
-                        severity="primary"
-                        class="w-full sm:w-auto"
-                        :disabled="selectedAttendees.length === 0"
-                        @click="generateBulk"
-                    />
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <div class="flex gap-2">
+                            <CustomButton
+                                label="Generate All"
+                                icon="pi-sparkles"
+                                severity="warning"
+                                class="flex-1 sm:flex-initial"
+                                @click="generateAll"
+                                v-tooltip.bottom="'Generate all pending badges based on current filters'"
+                            />
+                            <CustomButton
+                                label="Batch Download All"
+                                icon="pi-cloud-download"
+                                severity="help"
+                                class="flex-1 sm:flex-initial"
+                                @click="startBatchDownload"
+                                v-tooltip.bottom="'Download all filtered badges as ZIP in background'"
+                            />
+                            <CustomButton
+                                label="View Batches"
+                                icon="pi-list"
+                                severity="secondary"
+                                class="flex-1 sm:flex-initial"
+                                @click="showBatchDialog = true; loadBatchDownloads()"
+                                :badge="batchDownloads.length > 0 ? batchDownloads.length.toString() : undefined"
+                                v-tooltip.bottom="'View batch download history'"
+                            />
+                        </div>
+                        <div class="flex gap-2">
+                            <CustomButton
+                                label="Generate Selected"
+                                icon="pi-id-card"
+                                severity="primary"
+                                class="flex-1 sm:flex-initial"
+                                :disabled="selectedAttendees.length === 0"
+                                @click="generateBulk"
+                            />
+                            <CustomButton
+                                label="Email Selected"
+                                icon="pi-send"
+                                severity="success"
+                                class="flex-1 sm:flex-initial"
+                                :disabled="selectedAttendees.length === 0"
+                                @click="sendEmailBulk"
+                                v-tooltip.bottom="'Send badges via email to selected attendees'"
+                            />
+                            <CustomButton
+                                label="Download Selected"
+                                icon="pi-download"
+                                severity="info"
+                                class="flex-1 sm:flex-initial"
+                                :disabled="selectedAttendees.length === 0"
+                                @click="downloadBulk"
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Filters -->
@@ -317,15 +659,30 @@ const isSelected = (attendee: Attendee) => {
                     </div>
                 </div>
 
+                <!-- Pagination Controls -->
+                <div class="flex justify-between items-center mb-4 bg-white dark:bg-gray-800 rounded-xl shadow-md p-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Items per page:</span>
+                        <Dropdown
+                            v-model="filters.per_page"
+                            :options="perPageOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            @change="searchBadges"
+                            class="w-40"
+                        />
+                    </div>
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                        Showing {{ attendees.meta?.from || 0 }} to {{ attendees.meta?.to || 0 }} of {{ attendees.meta?.total || 0 }} results
+                    </div>
+                </div>
+
                 <!-- Desktop View - Table -->
                 <div class="hidden sm:block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
                     <DataTable
                         v-model:selection="selectedAttendees"
                         :value="attendees.data"
                         stripedRows
-                        paginator
-                        :rows="20"
-                        :rowsPerPageOptions="[10, 20, 50]"
                         class="custom-datatable"
                         dataKey="id"
                     >
@@ -383,8 +740,175 @@ const isSelected = (attendee: Attendee) => {
                             </template>
                         </Column>
                     </DataTable>
+
+                    <!-- Pagination -->
+                    <div v-if="attendees.links && attendees.links.length > 3" class="flex justify-center items-center gap-1 p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+                        <template v-for="(link, index) in attendees.links" :key="index">
+                            <Link
+                                v-if="link.url"
+                                :href="link.url"
+                                :class="[
+                                    'px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                                    link.active
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                                ]"
+                                v-html="link.label"
+                            />
+                            <span
+                                v-else
+                                :class="[
+                                    'px-3 py-2 rounded-md text-sm font-medium',
+                                    'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed border border-gray-300 dark:border-gray-600'
+                                ]"
+                                v-html="link.label"
+                            />
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Progress Dialog -->
+        <Dialog
+            v-model:visible="showProgressDialog"
+            modal
+            :closable="false"
+            :draggable="false"
+            header="Downloading Badges"
+            :style="{ width: '450px' }"
+        >
+            <div class="flex flex-col gap-4 py-4">
+                <div class="text-center">
+                    <i class="pi pi-download text-6xl text-blue-500 mb-4"></i>
+                    <p class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ progressMessage }}
+                    </p>
+                </div>
+                <ProgressBar :value="progressPercent" :showValue="true" class="h-6">
+                    <template #default="{ value }">
+                        <span class="text-white font-semibold">{{ value }}%</span>
+                    </template>
+                </ProgressBar>
+                <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
+                    Please wait while we prepare your badges...
+                </p>
+            </div>
+        </Dialog>
+
+        <!-- Batch Downloads Dialog -->
+        <Dialog
+            v-model:visible="showBatchDialog"
+            modal
+            header="Batch Downloads"
+            :style="{ width: '900px' }"
+            :maximizable="true"
+        >
+            <div v-if="batchDownloads.length === 0" class="text-center py-8">
+                <i class="pi pi-inbox text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">No batch downloads yet. Start a batch download to see progress here.</p>
+            </div>
+
+            <div v-else class="space-y-4">
+                <Card v-for="batch in batchDownloads" :key="batch.id" class="shadow-sm">
+                    <template #content>
+                        <div class="space-y-3">
+                            <!-- Header -->
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h3 class="font-bold text-lg">Batch #{{ batch.id }}</h3>
+                                        <Tag
+                                            :value="batch.status.toUpperCase()"
+                                            :severity="getStatusSeverity(batch.status)"
+                                        />
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        {{ batch.event_name || 'All Events' }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                        Started: {{ formatDate(batch.created_at) }}
+                                    </p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <CustomButton
+                                        v-if="batch.is_ready_for_download"
+                                        icon="pi-download"
+                                        label="Download ZIP"
+                                        severity="success"
+                                        size="small"
+                                        @click="downloadBatchFile(batch.id)"
+                                    />
+                                    <CustomButton
+                                        icon="pi-trash"
+                                        severity="danger"
+                                        size="small"
+                                        text
+                                        @click="deleteBatch(batch.id)"
+                                        v-tooltip.top="'Delete this batch'"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Progress -->
+                            <div v-if="batch.status === 'processing' || batch.status === 'pending'">
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Progress: {{ batch.processed_attendees }} / {{ batch.total_attendees }} badges</span>
+                                    <span class="font-semibold">{{ batch.progress_percentage }}%</span>
+                                </div>
+                                <ProgressBar :value="batch.progress_percentage" :showValue="false" class="h-4" />
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="grid grid-cols-3 gap-4 text-center pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ batch.total_attendees }}</p>
+                                    <p class="text-xs text-gray-500">Total</p>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold text-green-600">{{ batch.successful_badges }}</p>
+                                    <p class="text-xs text-gray-500">Success</p>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold text-red-600">{{ batch.failed_badges }}</p>
+                                    <p class="text-xs text-gray-500">Failed</p>
+                                </div>
+                            </div>
+
+                            <!-- Error Message -->
+                            <div v-if="batch.error_message" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                                <p class="text-sm text-red-800 dark:text-red-200">
+                                    <i class="pi pi-exclamation-triangle mr-2"></i>
+                                    {{ batch.error_message }}
+                                </p>
+                            </div>
+
+                            <!-- Completed Message -->
+                            <div v-if="batch.status === 'completed'" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                                <p class="text-sm text-green-800 dark:text-green-200">
+                                    <i class="pi pi-check-circle mr-2"></i>
+                                    Batch completed successfully! Click "Download ZIP" to get your badges.
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+                </Card>
+            </div>
+
+            <template #footer>
+                <div class="flex justify-between items-center">
+                    <p class="text-sm text-gray-500">
+                        <i class="pi pi-info-circle mr-2"></i>
+                        Batches are processed in chunks of 50 to prevent timeouts.
+                    </p>
+                    <CustomButton
+                        label="Close"
+                        icon="pi-times"
+                        severity="secondary"
+                        @click="showBatchDialog = false"
+                    />
+                </div>
+            </template>
+        </Dialog>
     </AuthenticatedLayout>
 </template>

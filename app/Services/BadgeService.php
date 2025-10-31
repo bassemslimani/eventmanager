@@ -44,17 +44,17 @@ class BadgeService
             Log::info("Found badge template ID: {$template->id} for attendee: {$attendee->id}");
 
             // Generate QR code as PNG using endroid/qr-code (works with GD)
-            // Reduced size from 800 to 300 to reduce PDF file size
+            // High quality QR code (600px) for premium badge quality
             $qrCode = \Endroid\QrCode\Builder\Builder::create()
                 ->data($attendee->qr_uuid)
-                ->size(300) // Reduced from 800 for smaller PDF size
+                ->size(600) // Premium quality matching single downloads
                 ->margin(10)
                 ->build();
 
             // Convert to base64 data URL for DomPDF
             $qrCodeDataUrl = 'data:image/png;base64,' . base64_encode($qrCode->getString());
 
-            Log::info("QR Code generated as PNG (300x300) for attendee: {$attendee->id}");
+            Log::info("QR Code generated as PNG (600x600) for attendee: {$attendee->id}");
 
             // Compress template background image to reduce PDF size
             $compressedTemplate = $this->compressTemplateImage($template->front_template);
@@ -62,7 +62,7 @@ class BadgeService
             // Compress event logo if exists
             $compressedLogo = null;
             if ($event->logo) {
-                $compressedLogo = $this->compressImage($event->logo, 500, 500, 75);
+                $compressedLogo = $this->compressImage($event->logo, 1000, 1000, 92);
             }
 
             // Get badge dimensions
@@ -128,8 +128,8 @@ class BadgeService
     }
 
     /**
-     * Compress template background image to reduce PDF size
-     * Target: Reduce 1.4MB image to ~200KB for email-friendly PDFs
+     * Compress template background image for high-quality PDFs
+     * Target: Premium quality badges matching single downloads (~1.4MB)
      */
     private function compressTemplateImage(?string $templatePath): ?string
     {
@@ -145,8 +145,8 @@ class BadgeService
                 return null;
             }
 
-            // Compress at 800px width (sufficient for badges), 60% quality
-            return $this->compressImage($templatePath, 800, 1200, 60);
+            // Premium quality compression at 1600px width, 90% quality
+            return $this->compressImage($templatePath, 1600, 2400, 90);
 
         } catch (\Exception $e) {
             Log::error("Failed to compress template image: " . $e->getMessage());

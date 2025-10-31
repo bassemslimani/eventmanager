@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -36,6 +36,7 @@ interface Props {
         type?: string;
         search?: string;
         event_id?: number;
+        per_page?: number;
     };
 }
 
@@ -45,6 +46,7 @@ const filters = ref({
     event_id: props.filters.event_id || null,
     type: props.filters.type || null,
     search: props.filters.search || '',
+    per_page: props.filters.per_page || 20,
 });
 
 const typeOptions = [
@@ -52,7 +54,13 @@ const typeOptions = [
     { label: 'Exhibitors', value: 'exhibitor' },
     { label: 'Guests', value: 'guest' },
     { label: 'Organizers', value: 'organizer' },
-    { label: 'VIP', value: 'vip' },
+    { label: 'Visitors', value: 'visitor' },
+];
+
+const perPageOptions = [
+    { label: '20 per page', value: 20 },
+    { label: '50 per page', value: 50 },
+    { label: '100 per page', value: 100 },
 ];
 
 const searchAttendees = () => {
@@ -67,7 +75,7 @@ const getTypeSeverity = (type: string) => {
         exhibitor: 'success',
         guest: 'info',
         organizer: 'warn',
-        vip: 'danger',
+        visitor: 'danger',
     };
     return severities[type] || 'secondary';
 };
@@ -214,14 +222,29 @@ const deleteAttendee = (id: number) => {
                     </div>
                 </div>
 
+                <!-- Pagination Controls -->
+                <div class="flex justify-between items-center mb-4 bg-white dark:bg-gray-800 rounded-xl shadow-md p-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Items per page:</span>
+                        <Dropdown
+                            v-model="filters.per_page"
+                            :options="perPageOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            @change="searchAttendees"
+                            class="w-40"
+                        />
+                    </div>
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                        Showing {{ attendees.meta?.from || 0 }} to {{ attendees.meta?.to || 0 }} of {{ attendees.meta?.total || 0 }} results
+                    </div>
+                </div>
+
                 <!-- Desktop View - Table -->
                 <div class="hidden sm:block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
                     <DataTable
                         :value="attendees.data"
                         stripedRows
-                        paginator
-                        :rows="20"
-                        :rowsPerPageOptions="[10, 20, 50, 100]"
                         class="custom-datatable"
                     >
                         <Column field="id" header="ID" sortable style="width: 80px" />
@@ -275,6 +298,31 @@ const deleteAttendee = (id: number) => {
                             </template>
                         </Column>
                     </DataTable>
+
+                    <!-- Pagination -->
+                    <div v-if="attendees.links && attendees.links.length > 3" class="flex justify-center items-center gap-1 p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+                        <template v-for="(link, index) in attendees.links" :key="index">
+                            <Link
+                                v-if="link.url"
+                                :href="link.url"
+                                :class="[
+                                    'px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                                    link.active
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                                ]"
+                                v-html="link.label"
+                            />
+                            <span
+                                v-else
+                                :class="[
+                                    'px-3 py-2 rounded-md text-sm font-medium',
+                                    'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed border border-gray-300 dark:border-gray-600'
+                                ]"
+                                v-html="link.label"
+                            />
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>

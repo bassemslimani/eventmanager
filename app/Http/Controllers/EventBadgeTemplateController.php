@@ -16,7 +16,7 @@ class EventBadgeTemplateController extends Controller
         $templates = $event->badgeTemplates()->get();
 
         // Ensure all categories have templates
-        $categories = ['exhibitor', 'guest', 'organizer', 'vip'];
+        $categories = ['exhibitor', 'guest', 'organizer', 'visitor'];
         $existingCategories = $templates->pluck('category')->toArray();
 
         foreach ($categories as $category) {
@@ -53,7 +53,7 @@ class EventBadgeTemplateController extends Controller
         ]);
 
         $validated = $request->validate([
-            'category' => 'required|in:exhibitor,guest,organizer,vip',
+            'category' => 'required|in:exhibitor,guest,organizer,visitor',
             'front_template' => 'nullable|image|max:5120',
             'elements' => 'nullable',  // Allow both string and array
             'terms_and_conditions' => 'nullable|string',

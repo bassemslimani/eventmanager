@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('event_badge_templates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained()->onDelete('cascade');
-            $table->enum('category', ['exhibitor', 'guest', 'organizer', 'vip'])->default('exhibitor');
+            $table->enum('category', ['exhibitor', 'guest', 'organizer', 'visitor'])->default('exhibitor');
 
             // Badge Template Images
             $table->string('front_template')->nullable();

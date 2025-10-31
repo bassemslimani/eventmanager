@@ -203,7 +203,7 @@
                 <h3>🎤 Speaker Information</h3>
                 <p>Thank you for being part of our speaker lineup:</p>
                 <ul>
-                    <li>VIP access to all areas and sessions</li>
+                    <li>Full access to all areas and sessions</li>
                     <li>Dedicated speaker lounge with refreshments</li>
                     <li>Technical support and rehearsal time</li>
                     <li>Recording of your session (upon request)</li>

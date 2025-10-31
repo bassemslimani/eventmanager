@@ -72,8 +72,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('badges', [BadgeController::class, 'index'])->name('badges.index');
         Route::post('badges/generate/{attendee}', [BadgeController::class, 'generate'])->name('badges.generate');
         Route::post('badges/generate-bulk', [BadgeController::class, 'generateBulk'])->name('badges.generate.bulk');
+        Route::post('badges/generate-all', [BadgeController::class, 'generateAll'])->name('badges.generate.all');
         Route::get('badges/download/{attendee}', [BadgeController::class, 'download'])->name('badges.download');
+        Route::post('badges/download-bulk', [BadgeController::class, 'downloadBulk'])->name('badges.download.bulk');
         Route::post('badges/send-email/{attendee}', [BadgeController::class, 'sendEmail'])->name('badges.send-email');
+        Route::post('badges/send-email-bulk', [BadgeController::class, 'sendEmailBulk'])->name('badges.send-email.bulk');
+
+        // Batch Downloads (Background Processing)
+        Route::post('badges/batch/start', [BadgeController::class, 'startBatchDownload'])->name('badges.batch.start');
+        Route::get('badges/batch/list', [BadgeController::class, 'getBatchDownloads'])->name('badges.batch.list');
+        Route::get('badges/batch/{batchId}/status', [BadgeController::class, 'checkBatchStatus'])->name('badges.batch.status');
+        Route::get('badges/batch/{batchId}/download', [BadgeController::class, 'downloadBatch'])->name('badges.batch.download');
+        Route::delete('badges/batch/{batchId}', [BadgeController::class, 'deleteBatch'])->name('badges.batch.delete');
 
         // Badge Templates
         Route::resource('badge-templates', BadgeTemplateController::class);

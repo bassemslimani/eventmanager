@@ -8,9 +8,11 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Mail\CheckInWelcomeEmail;
 
 class CheckInController extends Controller
 {
@@ -84,6 +86,22 @@ class CheckInController extends Controller
                 ],
             ]);
 
+            // Send welcome email to attendee
+            try {
+                Mail::to($attendee->email)->send(new CheckInWelcomeEmail($attendee->fresh()));
+                \Log::info('Check-in welcome email sent', [
+                    'attendee_id' => $attendee->id,
+                    'attendee_email' => $attendee->email,
+                ]);
+            } catch (\Exception $e) {
+                // Log email error but don't fail the check-in
+                \Log::error('Failed to send check-in welcome email', [
+                    'attendee_id' => $attendee->id,
+                    'attendee_email' => $attendee->email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             \Log::info('Check-in successful', [
                 'attendee_id' => $attendee->id,
                 'attendee_name' => $attendee->name,
@@ -147,6 +165,22 @@ class CheckInController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
+
+        // Send welcome email to attendee
+        try {
+            Mail::to($attendee->email)->send(new CheckInWelcomeEmail($attendee->fresh()));
+            \Log::info('Check-in welcome email sent (manual)', [
+                'attendee_id' => $attendee->id,
+                'attendee_email' => $attendee->email,
+            ]);
+        } catch (\Exception $e) {
+            // Log email error but don't fail the check-in
+            \Log::error('Failed to send check-in welcome email (manual)', [
+                'attendee_id' => $attendee->id,
+                'attendee_email' => $attendee->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return back()->with('success', 'Check-in successful!');
     }

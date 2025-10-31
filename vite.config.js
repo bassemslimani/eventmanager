@@ -19,7 +19,55 @@ export default defineConfig({
         }),
         VitePWA({
             registerType: 'autoUpdate',
-            includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+            injectRegister: 'auto',
+            scope: '/',
+            srcDir: 'public',
+            filename: 'sw.js',
+            strategies: 'generateSW',
+            workbox: {
+                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+                cleanupOutdatedCaches: true,
+                clientsClaim: true,
+                skipWaiting: true,
+                navigateFallback: null, // Disable navigation fallback for Laravel
+                runtimeCaching: [
+                    {
+                        urlPattern: /^https:\/\/api\./i,
+                        handler: 'NetworkFirst',
+                        options: {
+                            cacheName: 'api-cache',
+                            expiration: {
+                                maxEntries: 10,
+                                maxAgeSeconds: 60 * 60 * 24 * 7 // 1 week
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200]
+                            }
+                        }
+                    },
+                    {
+                        // Cache CSS/JS files
+                        urlPattern: /\.(?:js|css)$/,
+                        handler: 'StaleWhileRevalidate',
+                        options: {
+                            cacheName: 'static-resources',
+                        }
+                    },
+                    {
+                        // Cache images
+                        urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+                        handler: 'CacheFirst',
+                        options: {
+                            cacheName: 'images',
+                            expiration: {
+                                maxEntries: 60,
+                                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                            },
+                        }
+                    }
+                ]
+            },
+            includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png'],
             manifest: {
                 name: 'QRMH - Event Badge Management System',
                 short_name: 'QRMH',
@@ -60,34 +108,15 @@ export default defineConfig({
                         name: 'Scan QR',
                         short_name: 'Scan',
                         description: 'Scan attendee QR code',
-                        url: '/scan',
-                        icons: [{ src: '/scan-icon.png', sizes: '96x96' }]
+                        url: '/check-in',
+                        icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
                     },
                     {
-                        name: 'Import Attendees',
-                        short_name: 'Import',
-                        description: 'Import attendees from Excel',
-                        url: '/attendees/import',
-                        icons: [{ src: '/import-icon.png', sizes: '96x96' }]
-                    }
-                ]
-            },
-            workbox: {
-                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-                runtimeCaching: [
-                    {
-                        urlPattern: /^https:\/\/api\./i,
-                        handler: 'NetworkFirst',
-                        options: {
-                            cacheName: 'api-cache',
-                            expiration: {
-                                maxEntries: 10,
-                                maxAgeSeconds: 60 * 60 * 24 * 7 // 1 week
-                            },
-                            cacheableResponse: {
-                                statuses: [0, 200]
-                            }
-                        }
+                        name: 'Dashboard',
+                        short_name: 'Dashboard',
+                        description: 'View dashboard',
+                        url: '/dashboard',
+                        icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
                     }
                 ]
             },

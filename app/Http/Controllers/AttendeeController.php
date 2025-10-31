@@ -34,13 +34,17 @@ class AttendeeController extends Controller
             });
         }
 
-        $attendees = $query->latest()->paginate(20);
+        // Get per_page from request, default to 20, max 100
+        $perPage = $request->input('per_page', 20);
+        $perPage = min((int)$perPage, 100); // Cap at 100 to prevent performance issues
+
+        $attendees = $query->latest()->paginate($perPage)->withQueryString();
         $events = Event::orderBy('name')->get();
 
         return Inertia::render('Attendees/Index', [
             'attendees' => $attendees,
             'events' => $events,
-            'filters' => $request->only(['type', 'search', 'event_id']),
+            'filters' => $request->only(['type', 'search', 'event_id', 'per_page']),
         ]);
     }
 
@@ -57,7 +61,7 @@ class AttendeeController extends Controller
     {
         $validated = $request->validate([
             'event_id' => 'required|exists:events,id',
-            'type' => 'required|in:exhibitor,guest,organizer',
+            'type' => 'required|in:exhibitor,guest,organizer,visitor',
             'name' => 'required|string|max:255',
             'name_ar' => 'nullable|string|max:255',
             'email' => 'required|email|unique:attendees,email',
@@ -106,7 +110,7 @@ class AttendeeController extends Controller
     {
         $validated = $request->validate([
             'event_id' => 'required|exists:events,id',
-            'type' => 'required|in:exhibitor,guest,organizer',
+            'type' => 'required|in:exhibitor,guest,organizer,visitor',
             'name' => 'required|string|max:255',
             'name_ar' => 'nullable|string|max:255',
             'email' => 'required|email|unique:attendees,email,' . $attendee->id,

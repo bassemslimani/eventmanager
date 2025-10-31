@@ -112,7 +112,7 @@ const getCategoryLabel = () => {
         exhibitor: 'Exhibitor',
         guest: 'Guest',
         organizer: 'Organizer',
-        vip: 'VIP',
+        visitor: 'Visitor',
     };
     return labels[props.template.category] || props.template.category;
 };

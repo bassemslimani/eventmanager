@@ -77,7 +77,7 @@ const submit = () => {
                             <label class="block text-sm font-medium mb-2">Template Name *</label>
                             <InputText
                                 v-model="form.name"
-                                placeholder="e.g., VIP Exhibitor Badge"
+                                placeholder="e.g., Visitor Exhibitor Badge"
                                 class="w-full"
                                 :class="{ 'p-invalid': form.errors.name }"
                             />

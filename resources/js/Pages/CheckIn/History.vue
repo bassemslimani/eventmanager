@@ -238,7 +238,7 @@ const eventOptions = computed(() => {
                                     <span class="px-2 py-1 rounded-full text-xs font-semibold capitalize ml-2"
                                           :class="{
                                               'bg-blue-100 text-blue-800': checkIn.attendee.type === 'attendee',
-                                              'bg-purple-100 text-purple-800': checkIn.attendee.type === 'vip',
+                                              'bg-purple-100 text-purple-800': checkIn.attendee.type === 'visitor',
                                               'bg-green-100 text-green-800': checkIn.attendee.type === 'speaker',
                                               'bg-orange-100 text-orange-800': checkIn.attendee.type === 'sponsor',
                                           }">
@@ -292,7 +292,7 @@ const eventOptions = computed(() => {
                                         <span class="px-2 py-1 rounded-full text-xs font-semibold capitalize"
                                               :class="{
                                                   'bg-blue-100 text-blue-800': slotProps.data.attendee.type === 'attendee',
-                                                  'bg-purple-100 text-purple-800': slotProps.data.attendee.type === 'vip',
+                                                  'bg-purple-100 text-purple-800': slotProps.data.attendee.type === 'visitor',
                                                   'bg-green-100 text-green-800': slotProps.data.attendee.type === 'speaker',
                                                   'bg-orange-100 text-orange-800': slotProps.data.attendee.type === 'sponsor',
                                               }">

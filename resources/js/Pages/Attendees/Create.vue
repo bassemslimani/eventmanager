@@ -34,12 +34,13 @@ const typeOptions = [
     { label: 'Exhibitor', value: 'exhibitor' },
     { label: 'Guest', value: 'guest' },
     { label: 'Organizer', value: 'organizer' },
-    { label: 'VIP', value: 'vip' },
+    { label: 'Visitor', value: 'visitor' },
 ];
 
 const categoryOptions = [
     { label: 'Freelancer', value: 'freelancer' },
     { label: 'Company', value: 'company' },
+    { label: 'Visitor', value: 'visitor' },
 ];
 
 const submit = () => {

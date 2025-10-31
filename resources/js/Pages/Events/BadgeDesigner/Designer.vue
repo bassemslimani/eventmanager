@@ -400,7 +400,7 @@ const getCategoryLabel = () => {
         exhibitor: 'Exhibitor',
         guest: 'Guest',
         organizer: 'Organizer',
-        vip: 'VIP',
+        visitor: 'Visitor',
     };
     return labels[props.category] || props.category;
 };

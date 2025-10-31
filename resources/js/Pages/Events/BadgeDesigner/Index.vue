@@ -32,7 +32,7 @@ const getCategoryColor = (category: string) => {
         exhibitor: 'success',
         guest: 'info',
         organizer: 'warn',
-        vip: 'danger',
+        visitor: 'danger',
     };
     return colors[category] || 'secondary';
 };
@@ -42,7 +42,7 @@ const getCategoryIcon = (category: string) => {
         exhibitor: 'pi-building',
         guest: 'pi-user',
         organizer: 'pi-users',
-        vip: 'pi-star-fill',
+        visitor: 'pi-star-fill',
     };
     return icons[category] || 'pi-tag';
 };
@@ -103,7 +103,7 @@ const openVisualDesigner = (category: string, templateId?: number) => {
                                     <li><strong>Drag & drop elements:</strong> Position attendee names, companies, QR codes, and logos precisely</li>
                                     <li><strong>Real-time preview:</strong> See exactly how your badge will look when printed</li>
                                     <li><strong>Professional controls:</strong> Adjust fonts, colors, alignment, and sizing with precision</li>
-                                    <li><strong>Category-specific designs:</strong> Create unique badges for Exhibitor, Guest, Organizer, and VIP</li>
+                                    <li><strong>Category-specific designs:</strong> Create unique badges for Exhibitor, Guest, Organizer, and Visitor</li>
                                 </ul>
                             </div>
                         </div>

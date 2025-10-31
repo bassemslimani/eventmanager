@@ -84,7 +84,7 @@ class CampaignController extends Controller
         ]);
 
         // Get filtered attendees and create recipients
-        $attendees = $this->getFilteredAttendees($filters);
+        $attendees = $this->getFilteredAttendees($filters)->get();
 
         foreach ($attendees as $attendee) {
             CampaignRecipient::create([
